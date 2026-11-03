@@ -135,6 +135,12 @@ entity: sensor.fuse_guard_status
 show_log: true
 ```
 
+The integration adds the card to **Settings → Dashboards → Resources** for you,
+so browsers and the HA app both load it. If your resources are set up in YAML,
+it can't add one there; it loads the card through the page instead, which the
+HA app may miss. In that case add `/fuse_guard/fuse-guard-card.js` as a
+JavaScript module resource yourself.
+
 ## How it decides
 
 Every few seconds, and whenever a meter reports:
@@ -180,7 +186,8 @@ The defaults suit a battery that follows a new setpoint in about 10 s.
 ## Troubleshooting
 
 - **Labels missing or the card not found after an update:** reload the page
-  with Ctrl+F5.
+  with Ctrl+F5. In the HA app: Settings → Companion app → Troubleshooting →
+  Reset frontend cache.
 - **Status stays at Fail safe:** a phase has no fresh reading, the readback is
   stale, or the target isn't a number. Configure → Phase current sensors
   shows which sensor is the problem.

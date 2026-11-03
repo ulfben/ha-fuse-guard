@@ -1,7 +1,7 @@
 {
   "domain": "fuse_guard",
   "name": "Fuse Guard",
-  "after_dependencies": ["frontend", "http"],
+  "after_dependencies": ["frontend", "http", "lovelace"],
   "codeowners": ["@ulfben"],
   "config_flow": true,
   "dependencies": [],

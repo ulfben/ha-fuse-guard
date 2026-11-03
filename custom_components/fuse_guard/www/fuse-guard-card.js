@@ -1,6 +1,6 @@
 /*
- * Fuse Guard card. Served and loaded by the fuse_guard integration, so no
- * dashboard resource is needed. Config:
+ * Fuse Guard card. Served by the fuse_guard integration, which also adds it as a
+ * dashboard resource (you never add one by hand). Config:
  *
  *   type: custom:fuse-guard-card
  *   entity: sensor.house_status   # the guard's Status sensor
