@@ -326,7 +326,15 @@ class _SetupSteps:
         if user_input is not None or not meters:
             chosen = [m for m in meters if m.key in (user_input or {}).get(CONF_METERS, [])]
             if chosen:
-                self._prefill = {p: [m.sensors[p] for m in chosen] for p in PHASE_KEYS[:phases]}
+                # A sensor that is already set up keeps its phase; the A/B/C guess
+                # only applies to sensors that are new to this guard.
+                current = {
+                    e: p for p, ids in self._data.get(CONF_PHASE_SENSORS, {}).items() for e in ids
+                }
+                self._prefill = {p: [] for p in PHASE_KEYS[:phases]}
+                for meter in chosen:
+                    for guessed, entity_id in meter.sensors.items():
+                        self._prefill[current.get(entity_id, guessed)].append(entity_id)
             return await self.async_step_sources()
         # Tick the meters whose sensors are all in use already (Configure).
         in_use = {e for ids in self._data.get(CONF_PHASE_SENSORS, {}).values() for e in ids}

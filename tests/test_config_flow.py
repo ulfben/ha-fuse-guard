@@ -303,3 +303,27 @@ async def test_meter_labels_show_names_and_live_readings(hass: HomeAssistant) ->
         "Meter phase A/B/C current inv 1 · 4.2 / 9.5 / 12.7 A"
     )
     assert field.default() == ["sensor.meter_*"]  # the meter already in use is ticked
+
+
+async def test_ticking_a_meter_in_use_keeps_its_phases(hass: HomeAssistant) -> None:
+    """Regression: re-picking a correctly mapped A/B/C meter reverted it to A = L1."""
+    _add_entities(hass)
+    _add_swapped_inverter_meter(hass)
+    entry = (await _run_flow(hass, target_w=6000))["result"]
+    mapped = {
+        "l1": ["sensor.meter_l1", "sensor.meter_phase_b_current_inv_1"],
+        "l2": ["sensor.meter_l2", "sensor.meter_phase_c_current_inv_1"],
+        "l3": ["sensor.meter_l3", "sensor.meter_phase_a_current_inv_1"],
+    }
+    hass.config_entries.async_update_entry(
+        entry, options={**entry.options, CONF_PHASE_SENSORS: mapped}
+    )
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], {"next_step_id": "meters"}
+    )
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], {"meters": ["sensor.meter_*", "sensor.meter_phase_*_current_inv_1"]}
+    )
+    for phase, ids in mapped.items():
+        assert _suggested(result, phase) == ids

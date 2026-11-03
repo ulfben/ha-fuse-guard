@@ -14,6 +14,11 @@ from homeassistant.helpers import condition
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
+from homeassistant.loader import (
+    IntegrationNotFound,
+    IntegrationNotLoaded,
+    async_get_loaded_integration,
+)
 from homeassistant.util import dt as dt_util
 
 from .const import (
@@ -81,6 +86,13 @@ def meter_label(hass: HomeAssistant, meter: Meter) -> str:
             _name(hass, first),
             count=1,
         )
+        # Without a device, the integration is the best hint at what it is.
+        entry = er.async_get(hass).async_get(first)
+        if entry is not None:
+            try:
+                name += f" ({async_get_loaded_integration(hass, entry.platform).name})"
+            except (IntegrationNotFound, IntegrationNotLoaded):
+                pass
     values = []
     for entity_id in meter.sensors.values():
         state = hass.states.get(entity_id)
