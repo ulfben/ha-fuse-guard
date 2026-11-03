@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 import logging
+import re
 from typing import Any
 
 from homeassistant.const import STATE_UNAVAILABLE, STATE_UNKNOWN
@@ -26,7 +27,16 @@ from .const import (
     DOMAIN,
     SIGN_NEGATIVE,
 )
-from .meters import CurrentEntity, Meter, Reading, check, find_meters, markdown_table, meter_key
+from .meters import (
+    CurrentEntity,
+    Meter,
+    Reading,
+    check,
+    find_meters,
+    markdown_table,
+    meter_key,
+    phase_token,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -51,6 +61,34 @@ def discover_meters(hass: HomeAssistant, phases: int) -> list[Meter]:
         device_name = (device.name_by_user or device.name) if device else None
         entities.append(CurrentEntity(state.entity_id, _name(hass, state.entity_id), device_name))
     return find_meters(entities, phases)
+
+
+def meter_label(hass: HomeAssistant, meter: Meter) -> str:
+    """'SlimmeLezer · 13.1 / 13.0 / 10.8 A': a name, then what it reads now.
+
+    Live readings make the meters on the main fuse easy to spot: they agree
+    with each other, unlike an inverter's own output or a broken meter.
+    """
+    name = meter.label
+    first = next(iter(meter.sensors.values()))
+    if name == meter.key.partition(".")[2].replace("_", " "):
+        # No device: use the first sensor's name, with its phase made generic.
+        index, _, lettered = phase_token(first.partition(".")[2]) or (0, "", False)
+        raw = first.partition(".")[2].split("_")[index]
+        name = re.sub(
+            rf"(?i)\b{re.escape(raw)}\b",
+            "A/B/C" if lettered else "L1/L2/L3",
+            _name(hass, first),
+            count=1,
+        )
+    values = []
+    for entity_id in meter.sensors.values():
+        state = hass.states.get(entity_id)
+        try:
+            values.append(f"{float(state.state):.1f}" if state else "–")
+        except ValueError:
+            values.append("–")
+    return f"{name} · {' / '.join(values)} A"
 
 
 def phase_check(

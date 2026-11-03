@@ -66,7 +66,13 @@ from .const import (
     SIGN_POSITIVE,
 )
 from .meters import Meter
-from .setup_checks import discover_meters, load_check_text, phase_check, phase_check_text
+from .setup_checks import (
+    discover_meters,
+    load_check_text,
+    meter_label,
+    phase_check,
+    phase_check_text,
+)
 
 CONF_METERS = "meters"  # flow-only field: the meters picked in the first sensor step
 
@@ -280,18 +286,11 @@ def _form_values(options: dict[str, Any]) -> dict[str, Any]:
     return values
 
 
-def _meters_schema(meters: list[Meter]) -> vol.Schema:
-    options = [
-        selector.SelectOptionDict(
-            value=m.key,
-            label=f"{m.label}: "
-            + ", ".join(f"{phase.upper()} = {entity_id}" for phase, entity_id in m.sensors.items()),
-        )
-        for m in meters
-    ]
+def _meters_schema(hass: HomeAssistant, meters: list[Meter], picked: list[str]) -> vol.Schema:
+    options = [selector.SelectOptionDict(value=m.key, label=meter_label(hass, m)) for m in meters]
     return vol.Schema(
         {
-            vol.Optional(CONF_METERS, default=[]): selector.SelectSelector(
+            vol.Optional(CONF_METERS, default=picked): selector.SelectSelector(
                 selector.SelectSelectorConfig(
                     options=options, multiple=True, mode=selector.SelectSelectorMode.LIST
                 )
@@ -329,9 +328,12 @@ class _SetupSteps:
             if chosen:
                 self._prefill = {p: [m.sensors[p] for m in chosen] for p in PHASE_KEYS[:phases]}
             return await self.async_step_sources()
+        # Tick the meters whose sensors are all in use already (Configure).
+        in_use = {e for ids in self._data.get(CONF_PHASE_SENSORS, {}).values() for e in ids}
+        picked = [m.key for m in meters if set(m.sensors.values()) <= in_use]
         return self.async_show_form(
             step_id="meters",
-            data_schema=_meters_schema(meters),
+            data_schema=_meters_schema(self.hass, meters, picked),
             description_placeholders={"count": str(len(meters))},
         )
 

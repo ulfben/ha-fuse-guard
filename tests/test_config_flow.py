@@ -280,3 +280,26 @@ async def test_options_sensor_change_goes_through_the_check(hass: HomeAssistant)
     assert result["type"] is FlowResultType.CREATE_ENTRY
     assert entry.options[CONF_PHASE_SENSORS]["l1"] == ["sensor.meter_l1", "sensor.other_l1"]
     assert entry.options[CONF_LOADS][0]["target_w"] == 6000
+
+
+async def test_meter_labels_show_names_and_live_readings(hass: HomeAssistant) -> None:
+    _add_entities(hass)
+    _add_swapped_inverter_meter(hass)
+    for label in ("a", "b", "c"):
+        state = hass.states.get(f"sensor.meter_phase_{label}_current_inv_1")
+        hass.states.async_set(
+            state.entity_id,
+            state.state,
+            {**state.attributes, "friendly_name": f"Meter phase {label.upper()} current inv 1"},
+        )
+    entry = (await _run_flow(hass, target_w=6000))["result"]
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], {"next_step_id": "meters"}
+    )
+    field = next(iter(result["data_schema"].schema))
+    labels = {o["value"]: o["label"] for o in result["data_schema"].schema[field].config["options"]}
+    assert labels["sensor.meter_phase_*_current_inv_1"] == (
+        "Meter phase A/B/C current inv 1 · 4.2 / 9.5 / 12.7 A"
+    )
+    assert field.default() == ["sensor.meter_*"]  # the meter already in use is ticked

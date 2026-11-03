@@ -48,7 +48,7 @@ class Meter:
     lettered: bool = False  # phases came from A/B/C, so the order is a guess
 
 
-def _phase_token(object_id: str) -> tuple[int, str, bool] | None:
+def phase_token(object_id: str) -> tuple[int, str, bool] | None:
     """(token index, phase, lettered) for the phase part of an object id."""
     tokens = object_id.split("_")
     for i, token in enumerate(tokens):
@@ -66,7 +66,7 @@ def _phase_token(object_id: str) -> tuple[int, str, bool] | None:
 def meter_key(entity_id: str) -> tuple[str, bool]:
     """(meter key, lettered) for a sensor; a sensor without a phase token is its own meter."""
     domain, _, object_id = entity_id.partition(".")
-    found = _phase_token(object_id)
+    found = phase_token(object_id)
     if found is None:
         return entity_id, False
     index, _, lettered = found
@@ -79,7 +79,7 @@ def find_meters(entities: list[CurrentEntity], phases: int = 3) -> list[Meter]:
     groups: dict[str, Meter] = {}
     for entity in entities:
         object_id = entity.entity_id.partition(".")[2]
-        found = _phase_token(object_id)
+        found = phase_token(object_id)
         if found is None or _NOT_METERS & set(object_id.split("_")):
             continue
         _, phase, lettered = found
