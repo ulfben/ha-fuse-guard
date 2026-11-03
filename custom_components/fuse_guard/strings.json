@@ -16,9 +16,14 @@
           "voltage": "Used to convert amps to watts."
         }
       },
+      "meters": {
+        "title": "Meters on your main fuse",
+        "description": "Found {count} meters with a current sensor per phase. Pick every one that measures the current through your main fuse (not a single circuit, an EV charger or a solar inverter's own output). The next step fills in their sensors, and you can still change them there. Pick none to choose sensors yourself.",
+        "data": { "meters": "Meters" }
+      },
       "sources": {
         "title": "Phase current sensors",
-        "description": "Pick every sensor that measures each phase. The guard uses the highest fresh reading, so extra meters only make it safer.",
+        "description": "Pick every sensor that measures each phase. The guard uses the highest fresh reading, so extra meters only make it safer. Meters that label phases A/B/C are filled in as A = L1, B = L2, C = L3; the next step checks whether that is right.",
         "data": {
           "l1": "L1 current sensors",
           "l2": "L2 current sensors",
@@ -27,6 +32,24 @@
         },
         "data_description": {
           "freshness_s": "A reading older than this is ignored. If no reading on a phase is fresh, the guard fails safe."
+        }
+      },
+      "check": {
+        "title": "Check the phase sensors",
+        "description": "What each sensor reads right now:\n\n{table}\n\n{findings}",
+        "menu_options": {
+          "load": "Looks right, continue",
+          "apply_suggestion": "Use the suggested phase mapping",
+          "sources": "Change the sensors",
+          "check": "Read the sensors again"
+        }
+      },
+      "load_check": {
+        "title": "Check the load",
+        "description": "{report}\n\n{findings}",
+        "menu_options": {
+          "finish": "Looks right, create the guard",
+          "load": "Change the load settings"
         }
       },
       "load": {
@@ -72,9 +95,32 @@
         "title": "Fuse Guard settings",
         "menu_options": {
           "fuse": "Main fuse",
-          "sources": "Phase current sensors",
+          "meters": "Phase current sensors",
           "load": "Controllable load",
           "advanced": "Advanced timing"
+        }
+      },
+      "meters": {
+        "title": "Meters on your main fuse",
+        "description": "Found {count} meters with a current sensor per phase. Pick meters to replace the current sensors with theirs, or pick none to keep and edit the current ones.",
+        "data": { "meters": "Meters" }
+      },
+      "check": {
+        "title": "Check the phase sensors",
+        "description": "What each sensor reads right now:\n\n{table}\n\n{findings}",
+        "menu_options": {
+          "save": "Looks right, save",
+          "apply_suggestion": "Use the suggested phase mapping",
+          "sources": "Change the sensors",
+          "check": "Read the sensors again"
+        }
+      },
+      "load_check": {
+        "title": "Check the load",
+        "description": "{report}\n\n{findings}",
+        "menu_options": {
+          "save": "Looks right, save",
+          "load": "Change the load settings"
         }
       },
       "fuse": {

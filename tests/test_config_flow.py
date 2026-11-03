@@ -24,7 +24,7 @@ def _add_entities(hass: HomeAssistant) -> None:
     hass.states.async_set(SETPOINT, "6000", {"unit_of_measurement": "W", "max": 10000})
 
 
-async def _run_flow(hass: HomeAssistant, **load) -> dict:
+async def _to_sources(hass: HomeAssistant, meters: list[str] | None = None) -> dict:
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": config_entries.SOURCE_USER}
     )
@@ -33,7 +33,16 @@ async def _run_flow(hass: HomeAssistant, **load) -> dict:
         result["flow_id"],
         {"name": "House", "fuse_a": 16, "phases": "3", "margin_a": 0.6, "voltage": 230},
     )
+    assert result["step_id"] == "meters"
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {"meters": meters or []}
+    )
     assert result["step_id"] == "sources"
+    return result
+
+
+async def _run_flow(hass: HomeAssistant, **load) -> dict:
+    result = await _to_sources(hass)
     result = await hass.config_entries.flow.async_configure(
         result["flow_id"],
         {
@@ -43,10 +52,20 @@ async def _run_flow(hass: HomeAssistant, **load) -> dict:
             "freshness_s": 60,
         },
     )
+    assert result["type"] is FlowResultType.MENU and result["step_id"] == "check"
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {"next_step_id": "load"}
+    )
     assert result["step_id"] == "load"
-    return await hass.config_entries.flow.async_configure(
+    result = await hass.config_entries.flow.async_configure(
         result["flow_id"],
         {"setpoint_entity": SETPOINT, "actual_sign": "positive", "load_phases": "all", **load},
+    )
+    if result["type"] is not FlowResultType.MENU:
+        return result  # an error form or an abort
+    assert result["step_id"] == "load_check"
+    return await hass.config_entries.flow.async_configure(
+        result["flow_id"], {"next_step_id": "finish"}
     )
 
 
@@ -126,3 +145,138 @@ async def test_invalid_conditions_are_rejected(hass: HomeAssistant) -> None:
         await _run_flow(
             hass, target_w=6000, active_conditions=[{"condition": "state", "state": "2"}]
         )
+
+
+def _suggested(result: dict, key: str):
+    for field in result["data_schema"].schema:
+        if field == key:
+            return (field.description or {}).get("suggested_value")
+    raise KeyError(key)
+
+
+def _add_swapped_inverter_meter(hass: HomeAssistant) -> None:
+    """A meter labelled A/B/C where physically A = L3, B = L1, C = L2."""
+    for label, value in (("a", "4.2"), ("b", "9.5"), ("c", "12.7")):
+        hass.states.async_set(
+            f"sensor.meter_phase_{label}_current_inv_1",
+            value,
+            {"unit_of_measurement": "A", "device_class": "current"},
+        )
+    for phase, value in (("l1", "9.4"), ("l2", "12.8"), ("l3", "4.1")):
+        hass.states.async_set(
+            f"sensor.meter_{phase}", value, {"unit_of_measurement": "A", "device_class": "current"}
+        )
+
+
+async def test_picked_meters_prefill_the_sensors(hass: HomeAssistant) -> None:
+    _add_entities(hass)
+    _add_swapped_inverter_meter(hass)
+    result = await _to_sources(hass, ["sensor.meter_*", "sensor.meter_phase_*_current_inv_1"])
+    assert _suggested(result, "l1") == ["sensor.meter_l1", "sensor.meter_phase_a_current_inv_1"]
+    assert _suggested(result, "l3") == ["sensor.meter_l3", "sensor.meter_phase_c_current_inv_1"]
+
+
+async def test_check_page_finds_and_fixes_a_swapped_meter(hass: HomeAssistant) -> None:
+    _add_entities(hass)
+    _add_swapped_inverter_meter(hass)
+    result = await _to_sources(hass, ["sensor.meter_*", "sensor.meter_phase_*_current_inv_1"])
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        {
+            "l1": ["sensor.meter_l1", "sensor.meter_phase_a_current_inv_1"],
+            "l2": ["sensor.meter_l2", "sensor.meter_phase_b_current_inv_1"],
+            "l3": ["sensor.meter_l3", "sensor.meter_phase_c_current_inv_1"],
+            "freshness_s": 60,
+        },
+    )
+    assert result["step_id"] == "check"
+    assert "apply_suggestion" in result["menu_options"]
+    assert "disagree" in result["description_placeholders"]["findings"]
+
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {"next_step_id": "apply_suggestion"}
+    )
+    assert result["step_id"] == "check"
+    assert "apply_suggestion" not in result["menu_options"]
+    assert "✅" in result["description_placeholders"]["findings"]
+
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {"next_step_id": "load"}
+    )
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        {
+            "setpoint_entity": SETPOINT,
+            "target_w": 6000,
+            "actual_sign": "positive",
+            "load_phases": "all",
+        },
+    )
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {"next_step_id": "finish"}
+    )
+    sensors = result["options"][CONF_PHASE_SENSORS]
+    assert "sensor.meter_phase_b_current_inv_1" in sensors["l1"]
+    assert "sensor.meter_phase_c_current_inv_1" in sensors["l2"]
+    assert "sensor.meter_phase_a_current_inv_1" in sensors["l3"]
+
+
+async def test_load_check_flags_a_reversed_actual_power_sign(hass: HomeAssistant) -> None:
+    _add_entities(hass)
+    hass.states.async_set("sensor.battery_power", "-5800", {"device_class": "power"})
+    result = await _to_sources(hass)
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        {
+            "l1": ["sensor.meter_l1"],
+            "l2": ["sensor.meter_l2"],
+            "l3": ["sensor.meter_l3"],
+            "freshness_s": 60,
+        },
+    )
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {"next_step_id": "load"}
+    )
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        {
+            "setpoint_entity": SETPOINT,
+            "target_w": 6000,
+            "actual_entity": "sensor.battery_power",
+            "actual_sign": "positive",
+            "load_phases": "all",
+        },
+    )
+    assert result["step_id"] == "load_check"
+    assert "Actual power sign" in result["description_placeholders"]["findings"]
+
+
+async def test_options_sensor_change_goes_through_the_check(hass: HomeAssistant) -> None:
+    _add_entities(hass)
+    entry = (await _run_flow(hass, target_w=6000))["result"]
+    hass.states.async_set(
+        "sensor.other_l1", "10", {"unit_of_measurement": "A", "device_class": "current"}
+    )
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], {"next_step_id": "meters"}
+    )
+    result = await hass.config_entries.options.async_configure(result["flow_id"], {"meters": []})
+    assert result["step_id"] == "sources"
+    assert _suggested(result, "l1") == ["sensor.meter_l1"]  # keeps what is configured
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        {
+            "l1": ["sensor.meter_l1", "sensor.other_l1"],
+            "l2": ["sensor.meter_l2"],
+            "l3": ["sensor.meter_l3"],
+            "freshness_s": 60,
+        },
+    )
+    assert result["step_id"] == "check"
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], {"next_step_id": "save"}
+    )
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    assert entry.options[CONF_PHASE_SENSORS]["l1"] == ["sensor.meter_l1", "sensor.other_l1"]
+    assert entry.options[CONF_LOADS][0]["target_w"] == 6000
