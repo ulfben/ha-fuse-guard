@@ -1,0 +1,368 @@
+ts,entity_id,state,sample_ts
+1793672039.000,sensor.main_fuse_current_l1_virtual,9.74,1793672033.541113
+1793672043.600,sensor.main_fuse_current_l1_virtual,9.77,1793672043.596243
+1793672043.710,sensor.main_fuse_current_l1_virtual,9.77,1793672043.607174
+1793672053.665,sensor.main_fuse_current_l1_virtual,9.74,1793672053.661304
+1793672053.784,sensor.main_fuse_current_l1_virtual,9.74,1793672053.67426
+1793672063.733,sensor.main_fuse_current_l1_virtual,9.73,1793672063.728976
+1793672063.851,sensor.main_fuse_current_l1_virtual,9.73,1793672063.73949
+1793672073.800,sensor.main_fuse_current_l1_virtual,9.74,1793672073.796044
+1793672073.916,sensor.main_fuse_current_l1_virtual,9.74,1793672073.805199
+1793672083.982,sensor.main_fuse_current_l1_virtual,9.74,1793672083.861665
+1793672094.054,sensor.main_fuse_current_l1_virtual,9.74,1793672093.916804
+1793672104.122,sensor.main_fuse_current_l1_virtual,9.74,1793672103.970162
+1793672114.223,sensor.main_fuse_current_l1_virtual,9.74,1793672114.039701
+1793672124.100,sensor.main_fuse_current_l1_virtual,9.7,1793672119.61588
+1793672129.913,sensor.main_fuse_current_l1_virtual,9.7,1793672129.909487
+1793672134.165,sensor.main_fuse_current_l1_virtual,9.71,1793672134.161564
+1793672134.353,sensor.main_fuse_current_l1_virtual,9.71,1793672134.182081
+1793672144.240,sensor.main_fuse_current_l1_virtual,9.74,1793672144.236604
+1793672144.421,sensor.main_fuse_current_l1_virtual,9.74,1793672144.247056
+1793672154.305,sensor.main_fuse_current_l1_virtual,9.7,1793672119.049736
+1793672159.063,sensor.main_fuse_current_l1_virtual,9.4,1793672149.904437
+1793672159.844,sensor.main_fuse_current_l1_virtual,9.36,1793672154.313866
+1793672164.373,sensor.main_fuse_current_l1_virtual,9.35,1793672164.368966
+1793672164.551,sensor.main_fuse_current_l1_virtual,9.35,1793672164.379472
+1793672174.471,sensor.main_fuse_current_l1_virtual,9.36,1793672174.467245
+1793672174.652,sensor.main_fuse_current_l1_virtual,9.36,1793672174.481247
+1793672184.725,sensor.main_fuse_current_l1_virtual,9.36,1793672184.535334
+1793672194.595,sensor.main_fuse_current_l1_virtual,9.34,1793672194.591254
+1793672194.790,sensor.main_fuse_current_l1_virtual,9.34,1793672194.602366
+1793672204.660,sensor.main_fuse_current_l1_virtual,9.33,1793672204.656471
+1793672204.854,sensor.main_fuse_current_l1_virtual,9.33,1793672204.667857
+1793672214.732,sensor.main_fuse_current_l1_virtual,9.36,1793672214.727947
+1793672214.922,sensor.main_fuse_current_l1_virtual,9.36,1793672214.739743
+1793672224.798,sensor.main_fuse_current_l1_virtual,9.37,1793672224.794818
+1793672224.992,sensor.main_fuse_current_l1_virtual,9.37,1793672224.805522
+1793672234.893,sensor.main_fuse_current_l1_virtual,9.34,1793672234.889662
+1793672235.061,sensor.main_fuse_current_l1_virtual,9.34,1793672234.900644
+1793672245.127,sensor.main_fuse_current_l1_virtual,9.34,1793672244.95448
+1793672255.012,sensor.main_fuse_current_l1_virtual,9.33,1793672255.008906
+1793672255.192,sensor.main_fuse_current_l1_virtual,9.33,1793672255.02186
+1793672265.141,sensor.main_fuse_current_l1_virtual,9.35,1793672265.137132
+1793672270.242,sensor.main_fuse_current_l1_virtual,9.35,1793672265.149729
+1793672275.268,sensor.main_fuse_current_l1_virtual,9.32,1793672275.262203
+1793672275.349,sensor.main_fuse_current_l1_virtual,9.32,1793672275.275206
+1793672285.335,sensor.main_fuse_current_l1_virtual,9.35,1793672285.33132
+1793672289.804,sensor.main_fuse_current_l1_virtual,9.35,1793672285.341869
+1793672295.449,sensor.main_fuse_current_l1_virtual,9.32,1793672295.445076
+1793672295.514,sensor.main_fuse_current_l1_virtual,9.32,1793672295.455594
+1793672299.694,sensor.main_fuse_current_l1_virtual,15.1,1793672299.691193
+1793672309.592,sensor.main_fuse_current_l1_virtual,11.33,1793672305.566607
+1793672315.675,sensor.main_fuse_current_l1_virtual,11.34,1793672315.671761
+1793672315.742,sensor.main_fuse_current_l1_virtual,11.34,1793672315.682079
+1793672325.806,sensor.main_fuse_current_l1_virtual,11.11,1793672325.797725
+1793672325.901,sensor.main_fuse_current_l1_virtual,11.11,1793672325.822238
+1793672335.887,sensor.main_fuse_current_l1_virtual,11.1,1793672319.048285
+1793672346.042,sensor.main_fuse_current_l1_virtual,11.12,1793672346.03898
+1793672346.122,sensor.main_fuse_current_l1_virtual,11.12,1793672346.050217
+1793672356.120,sensor.main_fuse_current_l1_virtual,11.14,1793672356.116485
+1793672356.188,sensor.main_fuse_current_l1_virtual,11.14,1793672356.127215
+1793672366.245,sensor.main_fuse_current_l1_virtual,11.12,1793672366.241712
+1793672366.316,sensor.main_fuse_current_l1_virtual,11.12,1793672366.255259
+1793672376.357,sensor.main_fuse_current_l1_virtual,12.14,1793672376.352825
+1793672376.431,sensor.main_fuse_current_l1_virtual,12.14,1793672376.36779
+1793672386.464,sensor.main_fuse_current_l1_virtual,12.21,1793672386.46066
+1793672386.531,sensor.main_fuse_current_l1_virtual,12.21,1793672386.471128
+1793672396.576,sensor.main_fuse_current_l1_virtual,12.23,1793672396.572539
+1793672396.643,sensor.main_fuse_current_l1_virtual,12.23,1793672396.583344
+1793672406.686,sensor.main_fuse_current_l1_virtual,12.22,1793672406.681725
+1793672406.770,sensor.main_fuse_current_l1_virtual,12.22,1793672406.696961
+1793672416.796,sensor.main_fuse_current_l1_virtual,12.21,1793672416.792593
+1793672416.862,sensor.main_fuse_current_l1_virtual,12.21,1793672416.803192
+1793672426.913,sensor.main_fuse_current_l1_virtual,12.23,1793672426.909512
+1793672427.004,sensor.main_fuse_current_l1_virtual,12.23,1793672426.920923
+1793672437.013,sensor.main_fuse_current_l1_virtual,12.2,1793672429.393267
+1793672440.241,sensor.main_fuse_current_l1_virtual,12.2,1793672439.781554
+1793672447.123,sensor.main_fuse_current_l1_virtual,12.21,1793672447.119621
+1793672447.190,sensor.main_fuse_current_l1_virtual,12.21,1793672447.130116
+1793672457.189,sensor.main_fuse_current_l1_virtual,12.23,1793672457.185079
+1793672457.386,sensor.main_fuse_current_l1_virtual,12.23,1793672457.19429
+1793672467.252,sensor.main_fuse_current_l1_virtual,12.24,1793672467.248373
+1793672470.241,sensor.main_fuse_current_l1_virtual,12.24,1793672467.259977
+1793672477.324,sensor.main_fuse_current_l1_virtual,12.2,1793672469.569972
+1793672480.242,sensor.main_fuse_current_l1_virtual,12.2,1793672479.953829
+1793672487.389,sensor.main_fuse_current_l1_virtual,12.22,1793672487.384772
+1793672487.642,sensor.main_fuse_current_l1_virtual,12.22,1793672487.395998
+1793672500.241,sensor.main_fuse_current_l1_virtual,12.22,1793672497.449434
+1793672507.508,sensor.main_fuse_current_l1_virtual,12.21,1793672507.503858
+1793672507.813,sensor.main_fuse_current_l1_virtual,12.21,1793672507.516147
+1793672517.576,sensor.main_fuse_current_l1_virtual,12.22,1793672517.572805
+1793672520.245,sensor.main_fuse_current_l1_virtual,12.22,1793672517.584568
+1793672527.643,sensor.main_fuse_current_l1_virtual,12.23,1793672527.639437
+1793672529.352,sensor.main_fuse_current_l1_virtual,12.23,1793672527.651541
+1793672537.713,sensor.main_fuse_current_l1_virtual,12.21,1793672537.709741
+1793672537.996,sensor.main_fuse_current_l1_virtual,12.21,1793672537.72266
+1793672547.780,sensor.main_fuse_current_l1_virtual,12.24,1793672547.776779
+1793672548.063,sensor.main_fuse_current_l1_virtual,12.24,1793672547.787522
+1793672557.846,sensor.main_fuse_current_l1_virtual,12.25,1793672557.841833
+1793672558.131,sensor.main_fuse_current_l1_virtual,12.25,1793672557.856358
+1793672567.914,sensor.main_fuse_current_l1_virtual,12.24,1793672567.910122
+1793672568.202,sensor.main_fuse_current_l1_virtual,12.24,1793672567.920714
+1793672578.006,sensor.main_fuse_current_l1_virtual,12.22,1793672578.002775
+1793672578.288,sensor.main_fuse_current_l1_virtual,12.22,1793672578.011681
+1793672588.071,sensor.main_fuse_current_l1_virtual,12.23,1793672588.06664
+1793672588.355,sensor.main_fuse_current_l1_virtual,12.23,1793672588.078907
+1793672598.140,sensor.main_fuse_current_l1_virtual,12.25,1793672598.13604
+1793672598.425,sensor.main_fuse_current_l1_virtual,12.25,1793672598.1474
+1793672608.490,sensor.main_fuse_current_l1_virtual,12.25,1793672608.202161
+1793672618.263,sensor.main_fuse_current_l1_virtual,12.24,1793672618.259084
+1793672618.564,sensor.main_fuse_current_l1_virtual,12.24,1793672618.272245
+1793672628.637,sensor.main_fuse_current_l1_virtual,12.24,1793672628.337071
+1793672638.396,sensor.main_fuse_current_l1_virtual,12.28,1793672638.392822
+1793672638.711,sensor.main_fuse_current_l1_virtual,12.28,1793672638.403763
+1793672039.516,sensor.main_fuse_current_l2_virtual,10.2,1793672039.511518
+1793672043.711,sensor.main_fuse_current_l2_virtual,10.22,1793672043.706814
+1793672050.252,sensor.main_fuse_current_l2_virtual,10.22,1793672043.718889
+1793672053.785,sensor.main_fuse_current_l2_virtual,10.27,1793672053.78033
+1793672059.584,sensor.main_fuse_current_l2_virtual,10.27,1793672053.792619
+1793672063.852,sensor.main_fuse_current_l2_virtual,10.28,1793672063.847595
+1793672070.242,sensor.main_fuse_current_l2_virtual,10.28,1793672063.858311
+1793672073.917,sensor.main_fuse_current_l2_virtual,10.29,1793672073.912778
+1793672079.041,sensor.main_fuse_current_l2_virtual,10.3,1793672079.037684
+1793672079.425,sensor.main_fuse_current_l2_virtual,10.3,1793672079.419819
+1793672083.982,sensor.main_fuse_current_l2_virtual,10.36,1793672083.978045
+1793672089.417,sensor.main_fuse_current_l2_virtual,10.4,1793672089.412234
+1793672094.054,sensor.main_fuse_current_l2_virtual,10.42,1793672094.05006
+1793672100.250,sensor.main_fuse_current_l2_virtual,10.42,1793672094.063215
+1793672104.122,sensor.main_fuse_current_l2_virtual,10.46,1793672104.118058
+1793672109.901,sensor.main_fuse_current_l2_virtual,10.46,1793672104.131157
+1793672114.224,sensor.main_fuse_current_l2_virtual,10.48,1793672114.219785
+1793672119.055,sensor.main_fuse_current_l2_virtual,10.48,1793672114.230308
+1793672124.288,sensor.main_fuse_current_l2_virtual,10.47,1793672124.284242
+1793672129.913,sensor.main_fuse_current_l2_virtual,10.5,1793672129.909562
+1793672140.242,sensor.main_fuse_current_l2_virtual,10.5,1793672139.69385
+1793672144.422,sensor.main_fuse_current_l2_virtual,10.59,1793672144.417932
+1793672149.908,sensor.main_fuse_current_l2_virtual,10.59,1793672144.430728
+1793672149.918,sensor.main_fuse_current_l2_virtual,10.6,1793672149.914863
+1793672159.857,sensor.main_fuse_current_l2_virtual,10.46,1793672154.494936
+1793672164.552,sensor.main_fuse_current_l2_virtual,10.2,1793672159.851891
+1793672169.433,sensor.main_fuse_current_l2_virtual,10.2,1793672159.069484
+1793672199.049,sensor.main_fuse_current_l2_virtual,9.86,1793672194.796252
+1793672204.855,sensor.main_fuse_current_l2_virtual,9.84,1793672204.85092
+1793672210.242,sensor.main_fuse_current_l2_virtual,9.84,1793672204.861397
+1793672214.922,sensor.main_fuse_current_l2_virtual,9.82,1793672214.917725
+1793672220.245,sensor.main_fuse_current_l2_virtual,9.82,1793672214.930524
+1793672224.992,sensor.main_fuse_current_l2_virtual,9.81,1793672224.988236
+1793672230.242,sensor.main_fuse_current_l2_virtual,9.81,1793672225.001893
+1793672235.061,sensor.main_fuse_current_l2_virtual,9.8,1793672229.593339
+1793672240.242,sensor.main_fuse_current_l2_virtual,9.8,1793672239.566436
+1793672249.969,sensor.main_fuse_current_l2_virtual,9.8,1793672239.05586
+1793672279.070,sensor.main_fuse_current_l2_virtual,9.76,1793672275.35435
+1793672289.804,sensor.main_fuse_current_l2_virtual,9.76,1793672285.452595
+1793672295.515,sensor.main_fuse_current_l2_virtual,9.75,1793672295.510459
+1793672299.696,sensor.main_fuse_current_l2_virtual,9.75,1793672295.521844
+1793672299.711,sensor.main_fuse_current_l2_virtual,15.9,1793672299.707485
+1793672309.606,sensor.main_fuse_current_l2_virtual,12.2,1793672309.602968
+1793672319.466,sensor.main_fuse_current_l2_virtual,12.17,1793672315.747345
+1793672325.903,sensor.main_fuse_current_l2_virtual,12.0,1793672319.462855
+1793672329.953,sensor.main_fuse_current_l2_virtual,12.0,1793672319.055877
+1793672359.052,sensor.main_fuse_current_l2_virtual,11.49,1793672356.193058
+1793672366.317,sensor.main_fuse_current_l2_virtual,11.42,1793672366.31248
+1793672369.605,sensor.main_fuse_current_l2_virtual,11.42,1793672366.325613
+1793672376.432,sensor.main_fuse_current_l2_virtual,12.44,1793672376.427099
+1793672379.524,sensor.main_fuse_current_l2_virtual,12.44,1793672376.4427
+1793672386.532,sensor.main_fuse_current_l2_virtual,12.52,1793672386.528002
+1793672389.916,sensor.main_fuse_current_l2_virtual,12.52,1793672386.538028
+1793672396.644,sensor.main_fuse_current_l2_virtual,12.53,1793672396.639383
+1793672399.064,sensor.main_fuse_current_l2_virtual,12.53,1793672396.650041
+1793672406.771,sensor.main_fuse_current_l2_virtual,12.55,1793672406.766684
+1793672410.243,sensor.main_fuse_current_l2_virtual,12.55,1793672406.776995
+1793672416.862,sensor.main_fuse_current_l2_virtual,12.53,1793672416.85834
+1793672420.241,sensor.main_fuse_current_l2_virtual,12.53,1793672416.868906
+1793672427.005,sensor.main_fuse_current_l2_virtual,12.55,1793672427.000525
+1793672429.397,sensor.main_fuse_current_l2_virtual,12.55,1793672427.012311
+1793672439.047,sensor.main_fuse_current_l2_virtual,12.55,1793672437.074502
+1793672447.190,sensor.main_fuse_current_l2_virtual,12.53,1793672447.185762
+1793672449.665,sensor.main_fuse_current_l2_virtual,12.53,1793672447.1963
+1793672457.387,sensor.main_fuse_current_l2_virtual,12.52,1793672457.382128
+1793672460.245,sensor.main_fuse_current_l2_virtual,12.52,1793672457.394149
+1793672470.244,sensor.main_fuse_current_l2_virtual,12.52,1793672467.493198
+1793672477.558,sensor.main_fuse_current_l2_virtual,12.54,1793672477.552377
+1793672479.055,sensor.main_fuse_current_l2_virtual,12.54,1793672477.564452
+1793672487.643,sensor.main_fuse_current_l2_virtual,12.53,1793672487.638908
+1793672490.242,sensor.main_fuse_current_l2_virtual,12.53,1793672487.650865
+1793672500.244,sensor.main_fuse_current_l2_virtual,12.53,1793672497.755106
+1793672507.814,sensor.main_fuse_current_l2_virtual,12.54,1793672507.80895
+1793672510.241,sensor.main_fuse_current_l2_virtual,12.54,1793672507.820059
+1793672520.250,sensor.main_fuse_current_l2_virtual,12.54,1793672517.881119
+1793672529.353,sensor.main_fuse_current_l2_virtual,12.8,1793672529.347228
+1793672537.997,sensor.main_fuse_current_l2_virtual,15.15,1793672537.992986
+1793672539.827,sensor.main_fuse_current_l2_virtual,15.15,1793672538.004465
+1793672548.064,sensor.main_fuse_current_l2_virtual,15.1,1793672539.822941
+1793672554.393,sensor.main_fuse_current_l2_virtual,14.96,1793672548.071062
+1793672558.132,sensor.main_fuse_current_l2_virtual,14.98,1793672558.125715
+1793672559.043,sensor.main_fuse_current_l2_virtual,14.98,1793672558.140125
+1793672568.205,sensor.main_fuse_current_l2_virtual,15.03,1793672568.195799
+1793672569.765,sensor.main_fuse_current_l2_virtual,15.03,1793672568.22986
+1793672578.288,sensor.main_fuse_current_l2_virtual,15.02,1793672578.284483
+1793672580.253,sensor.main_fuse_current_l2_virtual,15.02,1793672578.29724
+1793672588.356,sensor.main_fuse_current_l2_virtual,15.07,1793672588.351639
+1793672590.242,sensor.main_fuse_current_l2_virtual,15.07,1793672588.364092
+1793672598.426,sensor.main_fuse_current_l2_virtual,15.14,1793672598.421764
+1793672599.054,sensor.main_fuse_current_l2_virtual,15.14,1793672598.43407
+1793672608.491,sensor.main_fuse_current_l2_virtual,15.19,1793672608.486737
+1793672610.243,sensor.main_fuse_current_l2_virtual,15.19,1793672608.502135
+1793672618.565,sensor.main_fuse_current_l2_virtual,15.25,1793672618.56095
+1793672619.898,sensor.main_fuse_current_l2_virtual,15.25,1793672618.577589
+1793672628.637,sensor.main_fuse_current_l2_virtual,15.27,1793672628.633337
+1793672630.242,sensor.main_fuse_current_l2_virtual,15.27,1793672628.650395
+1793672638.711,sensor.main_fuse_current_l2_virtual,15.29,1793672638.706829
+1793672639.073,sensor.main_fuse_current_l2_virtual,15.3,1793672639.068989
+1793672639.686,sensor.main_fuse_current_l2_virtual,15.3,1793672639.682595
+1793672039.517,sensor.main_fuse_current_l3_virtual,10.49,1793672033.342841
+1793672043.601,sensor.main_fuse_current_l3_virtual,10.49,1793672043.397931
+1793672053.458,sensor.main_fuse_current_l3_virtual,10.5,1793672053.453228
+1793672053.666,sensor.main_fuse_current_l3_virtual,10.5,1793672053.465166
+1793672059.585,sensor.main_fuse_current_l3_virtual,10.5,1793672059.579169
+1793672070.246,sensor.main_fuse_current_l3_virtual,10.5,1793672069.512046
+1793672079.435,sensor.main_fuse_current_l3_virtual,10.49,1793672073.579811
+1793672083.983,sensor.main_fuse_current_l3_virtual,10.49,1793672083.634745
+1793672094.055,sensor.main_fuse_current_l3_virtual,10.49,1793672093.689098
+1793672103.755,sensor.main_fuse_current_l3_virtual,10.52,1793672103.750462
+1793672104.123,sensor.main_fuse_current_l3_virtual,10.52,1793672103.762372
+1793672113.823,sensor.main_fuse_current_l3_virtual,10.5,1793672109.896437
+1793672119.621,sensor.main_fuse_current_l3_virtual,10.5,1793672113.830393
+1793672123.890,sensor.main_fuse_current_l3_virtual,10.47,1793672123.88549
+1793672124.101,sensor.main_fuse_current_l3_virtual,10.47,1793672123.89787
+1793672134.166,sensor.main_fuse_current_l3_virtual,10.47,1793672133.952248
+1793672144.011,sensor.main_fuse_current_l3_virtual,10.48,1793672144.006712
+1793672144.241,sensor.main_fuse_current_l3_virtual,10.48,1793672144.015902
+1793672154.076,sensor.main_fuse_current_l3_virtual,10.47,1793672154.070882
+1793672154.306,sensor.main_fuse_current_l3_virtual,10.47,1793672154.083033
+1793672164.374,sensor.main_fuse_current_l3_virtual,10.47,1793672164.137496
+1793672174.472,sensor.main_fuse_current_l3_virtual,10.47,1793672174.192245
+1793672184.302,sensor.main_fuse_current_l3_virtual,10.48,1793672184.298001
+1793672184.726,sensor.main_fuse_current_l3_virtual,10.48,1793672184.30963
+1793672194.596,sensor.main_fuse_current_l3_virtual,10.48,1793672194.364465
+1793672204.423,sensor.main_fuse_current_l3_virtual,10.47,1793672204.418316
+1793672204.661,sensor.main_fuse_current_l3_virtual,10.47,1793672204.428856
+1793672214.732,sensor.main_fuse_current_l3_virtual,10.47,1793672214.484167
+1793672224.799,sensor.main_fuse_current_l3_virtual,10.47,1793672224.560277
+1793672234.674,sensor.main_fuse_current_l3_virtual,10.46,1793672234.668555
+1793672234.894,sensor.main_fuse_current_l3_virtual,10.46,1793672234.680591
+1793672244.784,sensor.main_fuse_current_l3_virtual,10.47,1793672244.779915
+1793672245.128,sensor.main_fuse_current_l3_virtual,10.47,1793672244.790391
+1793672254.898,sensor.main_fuse_current_l3_virtual,10.46,1793672254.893977
+1793672255.013,sensor.main_fuse_current_l3_virtual,10.46,1793672254.905771
+1793672265.142,sensor.main_fuse_current_l3_virtual,10.46,1793672265.083318
+1793672275.143,sensor.main_fuse_current_l3_virtual,10.45,1793672275.138554
+1793672275.269,sensor.main_fuse_current_l3_virtual,10.45,1793672275.149426
+1793672285.262,sensor.main_fuse_current_l3_virtual,11.14,1793672285.256764
+1793672285.336,sensor.main_fuse_current_l3_virtual,11.14,1793672285.27374
+1793672295.382,sensor.main_fuse_current_l3_virtual,10.92,1793672295.3776
+1793672295.450,sensor.main_fuse_current_l3_virtual,10.92,1793672295.387473
+1793672299.745,sensor.main_fuse_current_l3_virtual,16.8,1793672299.738299
+1793672309.620,sensor.main_fuse_current_l3_virtual,13.24,1793672305.505215
+1793672315.610,sensor.main_fuse_current_l3_virtual,13.25,1793672315.605805
+1793672315.676,sensor.main_fuse_current_l3_virtual,13.25,1793672315.615863
+1793672325.719,sensor.main_fuse_current_l3_virtual,13.1,1793672319.471221
+1793672329.964,sensor.main_fuse_current_l3_virtual,13.1,1793672319.062566
+1793672359.065,sensor.main_fuse_current_l3_virtual,13.05,1793672355.988266
+1793672366.246,sensor.main_fuse_current_l3_virtual,13.05,1793672366.102992
+1793672369.605,sensor.main_fuse_current_l3_virtual,13.1,1793672369.600245
+1793672376.214,sensor.main_fuse_current_l3_virtual,14.18,1793672376.208285
+1793672376.358,sensor.main_fuse_current_l3_virtual,14.18,1793672376.220452
+1793672379.544,sensor.main_fuse_current_l3_virtual,14.2,1793672379.538113
+1793672386.325,sensor.main_fuse_current_l3_virtual,14.26,1793672386.320086
+1793672386.465,sensor.main_fuse_current_l3_virtual,14.26,1793672386.33023
+1793672396.456,sensor.main_fuse_current_l3_virtual,14.24,1793672396.451664
+1793672396.577,sensor.main_fuse_current_l3_virtual,14.24,1793672396.462205
+1793672406.687,sensor.main_fuse_current_l3_virtual,14.24,1793672406.566914
+1793672416.797,sensor.main_fuse_current_l3_virtual,14.24,1793672416.621371
+1793672426.691,sensor.main_fuse_current_l3_virtual,14.25,1793672426.686056
+1793672426.914,sensor.main_fuse_current_l3_virtual,14.25,1793672426.696367
+1793672429.399,sensor.main_fuse_current_l3_virtual,14.3,1793672429.393444
+1793672440.245,sensor.main_fuse_current_l3_virtual,14.3,1793672439.781717
+1793672449.665,sensor.main_fuse_current_l3_virtual,14.3,1793672439.042698
+1793672479.056,sensor.main_fuse_current_l3_virtual,14.27,1793672476.995743
+1793672487.390,sensor.main_fuse_current_l3_virtual,14.27,1793672487.050029
+1793672500.246,sensor.main_fuse_current_l3_virtual,14.27,1793672497.103838
+1793672507.172,sensor.main_fuse_current_l3_virtual,14.26,1793672507.167608
+1793672507.509,sensor.main_fuse_current_l3_virtual,14.26,1793672507.181185
+1793672517.577,sensor.main_fuse_current_l3_virtual,14.26,1793672517.235362
+1793672527.295,sensor.main_fuse_current_l3_virtual,14.27,1793672527.289941
+1793672527.644,sensor.main_fuse_current_l3_virtual,14.27,1793672527.302122
+1793672537.361,sensor.main_fuse_current_l3_virtual,14.3,1793672537.355798
+1793672537.714,sensor.main_fuse_current_l3_virtual,14.3,1793672537.370076
+1793672539.837,sensor.main_fuse_current_l3_virtual,14.3,1793672539.831883
+1793672557.848,sensor.main_fuse_current_l3_virtual,14.3,1793672554.400873
+1793672560.244,sensor.main_fuse_current_l3_virtual,14.3,1793672559.762448
+1793672567.539,sensor.main_fuse_current_l3_virtual,14.31,1793672567.534611
+1793672567.915,sensor.main_fuse_current_l3_virtual,14.31,1793672567.545005
+1793672577.607,sensor.main_fuse_current_l3_virtual,14.3,1793672569.771012
+1793672580.257,sensor.main_fuse_current_l3_virtual,14.3,1793672579.765619
+1793672590.245,sensor.main_fuse_current_l3_virtual,14.3,1793672589.726362
+1793672600.242,sensor.main_fuse_current_l3_virtual,14.3,1793672599.622913
+1793672607.786,sensor.main_fuse_current_l3_virtual,14.32,1793672607.78103
+1793672608.491,sensor.main_fuse_current_l3_virtual,14.32,1793672607.792775
+1793672617.852,sensor.main_fuse_current_l3_virtual,14.33,1793672617.847165
+1793672618.264,sensor.main_fuse_current_l3_virtual,14.33,1793672617.856262
+1793672627.915,sensor.main_fuse_current_l3_virtual,14.31,1793672627.910201
+1793672628.638,sensor.main_fuse_current_l3_virtual,14.31,1793672627.920946
+1793672637.989,sensor.main_fuse_current_l3_virtual,14.32,1793672637.984655
+1793672638.397,sensor.main_fuse_current_l3_virtual,14.32,1793672637.993973
+1793672039.000,sensor.battery_forced_charge_discharge_power_inv_1,6000,
+1793672299.887,sensor.battery_forced_charge_discharge_power_inv_1,5300,
+1793672370.363,sensor.battery_forced_charge_discharge_power_inv_1,6000,
+1793672039.000,sensor.battery_power_inv_1,-6001,
+1793672060.924,sensor.battery_power_inv_1,-6000,
+1793672070.982,sensor.battery_power_inv_1,-6001,
+1793672091.094,sensor.battery_power_inv_1,-6000,
+1793672101.153,sensor.battery_power_inv_1,-6001,
+1793672302.263,sensor.battery_power_inv_1,-5300,
+1793672312.324,sensor.battery_power_inv_1,-5299,
+1793672322.380,sensor.battery_power_inv_1,-5300,
+1793672362.602,sensor.battery_power_inv_1,-5299,
+1793672372.658,sensor.battery_power_inv_1,-6001,
+1793672382.715,sensor.battery_power_inv_1,-6002,
+1793672402.828,sensor.battery_power_inv_1,-6001,
+1793672412.886,sensor.battery_power_inv_1,-6000,
+1793672443.088,sensor.battery_power_inv_1,-6001,
+1793672614.117,sensor.battery_power_inv_1,-6002,
+1793672624.174,sensor.battery_power_inv_1,-6001,
+1793672039.000,input_number.sg_desired_charge_power,6000.0,
+1793672039.000,sensor.ems_mode_selection_raw_inv_1,2,
+1793672039.000,sensor.battery_forced_charge_discharge_cmd_raw_inv_1,170,
+1793672039.000,input_number.sg_safe_charge_limit,6000.0,
+1793672299.901,input_number.sg_safe_charge_limit,5300.0,
+1793672370.451,input_number.sg_safe_charge_limit,6000.0,
+1793672039.000,input_text.sg_fuse_guard_msg,HOLD; ceiling 6000 W; requested 6000 W; readback 6000 W,
+1793672040.260,input_text.sg_fuse_guard_msg,RECOVER; ceiling 6000 W; requested 6000 W; readback 6000 W,
+1793672050.213,input_text.sg_fuse_guard_msg,HOLD; ceiling 6000 W; requested 6000 W; readback 6000 W,
+1793672070.214,input_text.sg_fuse_guard_msg,RECOVER; ceiling 6000 W; requested 6000 W; readback 6000 W,
+1793672080.216,input_text.sg_fuse_guard_msg,HOLD; ceiling 6000 W; requested 6000 W; readback 6000 W,
+1793672100.219,input_text.sg_fuse_guard_msg,RECOVER; ceiling 6000 W; requested 6000 W; readback 6000 W,
+1793672110.215,input_text.sg_fuse_guard_msg,HOLD; ceiling 6000 W; requested 6000 W; readback 6000 W,
+1793672130.213,input_text.sg_fuse_guard_msg,RECOVER; ceiling 6000 W; requested 6000 W; readback 6000 W,
+1793672140.214,input_text.sg_fuse_guard_msg,HOLD; ceiling 6000 W; requested 6000 W; readback 6000 W,
+1793672160.217,input_text.sg_fuse_guard_msg,RECOVER; ceiling 6000 W; requested 6000 W; readback 6000 W,
+1793672170.213,input_text.sg_fuse_guard_msg,HOLD; ceiling 6000 W; requested 6000 W; readback 6000 W,
+1793672190.213,input_text.sg_fuse_guard_msg,RECOVER; ceiling 6000 W; requested 6000 W; readback 6000 W,
+1793672200.213,input_text.sg_fuse_guard_msg,HOLD; ceiling 6000 W; requested 6000 W; readback 6000 W,
+1793672220.216,input_text.sg_fuse_guard_msg,RECOVER; ceiling 6000 W; requested 6000 W; readback 6000 W,
+1793672230.214,input_text.sg_fuse_guard_msg,HOLD; ceiling 6000 W; requested 6000 W; readback 6000 W,
+1793672250.216,input_text.sg_fuse_guard_msg,RECOVER; ceiling 6000 W; requested 6000 W; readback 6000 W,
+1793672260.214,input_text.sg_fuse_guard_msg,HOLD; ceiling 6000 W; requested 6000 W; readback 6000 W,
+1793672280.220,input_text.sg_fuse_guard_msg,RECOVER; ceiling 6000 W; requested 6000 W; readback 6000 W,
+1793672290.213,input_text.sg_fuse_guard_msg,HOLD; ceiling 6000 W; requested 6000 W; readback 6000 W,
+1793672299.907,input_text.sg_fuse_guard_msg,THROTTLE; ceiling 5300 W; requested 5300 W; readback 6000 W,
+1793672300.213,input_text.sg_fuse_guard_msg,THROTTLE; ceiling 5300 W; requested 5300 W; readback 5300 W,
+1793672310.224,input_text.sg_fuse_guard_msg,HOLD: cooldown; ceiling 5300 W; requested 5300 W; readback 5300 W,
+1793672360.214,input_text.sg_fuse_guard_msg,HOLD; ceiling 5300 W; requested 5300 W; readback 5300 W,
+1793672370.454,input_text.sg_fuse_guard_msg,RECOVER; ceiling 6000 W; requested 6000 W; readback 5300 W,
+1793672380.214,input_text.sg_fuse_guard_msg,HOLD; ceiling 6000 W; requested 6000 W; readback 6000 W,
+1793672430.213,input_text.sg_fuse_guard_msg,RECOVER; ceiling 6000 W; requested 6000 W; readback 6000 W,
+1793672440.213,input_text.sg_fuse_guard_msg,HOLD; ceiling 6000 W; requested 6000 W; readback 6000 W,
+1793672460.218,input_text.sg_fuse_guard_msg,RECOVER; ceiling 6000 W; requested 6000 W; readback 6000 W,
+1793672470.213,input_text.sg_fuse_guard_msg,HOLD; ceiling 6000 W; requested 6000 W; readback 6000 W,
+1793672490.213,input_text.sg_fuse_guard_msg,RECOVER; ceiling 6000 W; requested 6000 W; readback 6000 W,
+1793672500.213,input_text.sg_fuse_guard_msg,HOLD; ceiling 6000 W; requested 6000 W; readback 6000 W,
+1793672520.216,input_text.sg_fuse_guard_msg,RECOVER; ceiling 6000 W; requested 6000 W; readback 6000 W,
+1793672530.213,input_text.sg_fuse_guard_msg,HOLD; ceiling 6000 W; requested 6000 W; readback 6000 W,
+1793672550.217,input_text.sg_fuse_guard_msg,RECOVER; ceiling 6000 W; requested 6000 W; readback 6000 W,
+1793672560.213,input_text.sg_fuse_guard_msg,HOLD; ceiling 6000 W; requested 6000 W; readback 6000 W,
+1793672580.232,input_text.sg_fuse_guard_msg,RECOVER; ceiling 6000 W; requested 6000 W; readback 6000 W,
+1793672590.213,input_text.sg_fuse_guard_msg,HOLD; ceiling 6000 W; requested 6000 W; readback 6000 W,
+1793672610.214,input_text.sg_fuse_guard_msg,RECOVER; ceiling 6000 W; requested 6000 W; readback 6000 W,
+1793672620.213,input_text.sg_fuse_guard_msg,HOLD; ceiling 6000 W; requested 6000 W; readback 6000 W,

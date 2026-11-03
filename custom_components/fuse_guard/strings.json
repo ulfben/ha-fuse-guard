@@ -1,0 +1,210 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Main fuse",
+        "description": "The guard keeps every phase below the fuse rating minus the safety margin.",
+        "data": {
+          "name": "Name",
+          "fuse_a": "Main fuse",
+          "phases": "Phases",
+          "margin_a": "Safety margin",
+          "voltage": "Nominal voltage"
+        },
+        "data_description": {
+          "margin_a": "The guard starts cutting at fuse minus margin, e.g. 15.4 A for a 16 A fuse with 0.6 A margin.",
+          "voltage": "Used to convert amps to watts."
+        }
+      },
+      "sources": {
+        "title": "Phase current sensors",
+        "description": "Pick every sensor that measures each phase. The guard uses the highest fresh reading, so extra meters only make it safer.",
+        "data": {
+          "l1": "L1 current sensors",
+          "l2": "L2 current sensors",
+          "l3": "L3 current sensors",
+          "freshness_s": "Freshness timeout"
+        },
+        "data_description": {
+          "freshness_s": "A reading older than this is ignored. If no reading on a phase is fresh, the guard fails safe."
+        }
+      },
+      "load": {
+        "title": "Controllable load",
+        "description": "The guard lowers this setpoint when a phase is over the limit and raises it again when there is room.",
+        "data": {
+          "setpoint_entity": "Power setpoint",
+          "target_entity": "Target power from entity",
+          "target_w": "Fixed target power",
+          "active_conditions": "Only write while",
+          "readback_entity": "Setpoint readback",
+          "actual_entity": "Actual power",
+          "actual_sign": "Actual power sign",
+          "load_phases": "Load phases"
+        },
+        "data_description": {
+          "setpoint_entity": "A number entity in W, for example a battery's forced charge power.",
+          "target_entity": "The power the load wants when there is room. Set this or a fixed target, not both.",
+          "target_w": "Used when no target entity is set.",
+          "active_conditions": "Optional. The guard only changes the setpoint while all these conditions hold, e.g. while the battery is in forced-charge mode. Leave empty if the load is always active.",
+          "readback_entity": "Optional. A sensor with the value the device actually holds. Defaults to the setpoint's own state.",
+          "actual_entity": "Optional. The guard waits for the load to follow before giving more power."
+        }
+      }
+    },
+    "error": {
+      "margin_too_large": "The margin must be smaller than the fuse.",
+      "invalid_conditions": "These conditions are not valid.",
+      "no_sensors": "Pick at least one sensor for this phase.",
+      "not_amps": "All sensors must report in A.",
+      "target_one_of": "Set either a target entity or a fixed target, not both.",
+      "entity_missing": "This entity does not exist.",
+      "not_watts": "The setpoint must be in W.",
+      "above_setpoint_max": "The target is above the setpoint's maximum."
+    },
+    "abort": {
+      "already_configured": "This setpoint is already guarded."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Fuse Guard settings",
+        "menu_options": {
+          "fuse": "Main fuse",
+          "sources": "Phase current sensors",
+          "load": "Controllable load",
+          "advanced": "Advanced timing"
+        }
+      },
+      "fuse": {
+        "title": "Main fuse",
+        "data": {
+          "fuse_a": "Main fuse",
+          "phases": "Phases",
+          "margin_a": "Safety margin",
+          "voltage": "Nominal voltage"
+        }
+      },
+      "sources": {
+        "title": "Phase current sensors",
+        "data": {
+          "l1": "L1 current sensors",
+          "l2": "L2 current sensors",
+          "l3": "L3 current sensors",
+          "freshness_s": "Freshness timeout"
+        }
+      },
+      "load": {
+        "title": "Controllable load",
+        "data": {
+          "setpoint_entity": "Power setpoint",
+          "target_entity": "Target power from entity",
+          "target_w": "Fixed target power",
+          "active_conditions": "Only write while",
+          "readback_entity": "Setpoint readback",
+          "actual_entity": "Actual power",
+          "actual_sign": "Actual power sign",
+          "load_phases": "Load phases"
+        }
+      },
+      "advanced": {
+        "title": "Advanced timing",
+        "description": "Defaults are tuned for a battery that follows a new setpoint in about 10 s.",
+        "data": {
+          "interval_s": "Evaluation interval",
+          "min_over_a": "Minimum overload",
+          "base_drop_w": "Base cut",
+          "cut_interval_s": "Time between cuts",
+          "response_s": "Response time",
+          "cooldown_s": "Cooldown after a cut",
+          "settling_s": "Settling time",
+          "recovery_interval_s": "Time between recovery steps",
+          "recovery_gain": "Recovery gain",
+          "step_w": "Step size",
+          "startup_hold_s": "Startup hold",
+          "on_missing_data": "On missing data"
+        },
+        "data_description": {
+          "min_over_a": "How far over the threshold counts as a real overload.",
+          "base_drop_w": "Each cut is this plus the overload converted to watts.",
+          "response_s": "A further cut needs a phase reading taken at least this long after the previous cut.",
+          "recovery_gain": "Share of the measured headroom given back per recovery step.",
+          "on_missing_data": "Only applies while the load is active."
+        }
+      }
+    },
+    "error": {
+      "margin_too_large": "The margin must be smaller than the fuse.",
+      "invalid_conditions": "These conditions are not valid.",
+      "no_sensors": "Pick at least one sensor for this phase.",
+      "not_amps": "All sensors must report in A.",
+      "target_one_of": "Set either a target entity or a fixed target, not both.",
+      "entity_missing": "This entity does not exist.",
+      "not_watts": "The setpoint must be in W.",
+      "above_setpoint_max": "The target is above the setpoint's maximum.",
+      "already_guarded": "Another Fuse Guard already controls this setpoint."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "status": {
+        "name": "Status",
+        "state": {
+          "off": "Off",
+          "startup": "Starting up",
+          "fail_safe": "Fail safe",
+          "inactive": "Load not active",
+          "zero_request": "No power requested",
+          "paused": "Load paused",
+          "limiting": "Limiting",
+          "holding": "Holding",
+          "recovering": "Recovering",
+          "full_rate": "Full rate"
+        }
+      },
+      "ceiling": { "name": "Ceiling" },
+      "highest_current": { "name": "Highest phase current" },
+      "headroom": { "name": "Headroom" },
+      "current_l1": { "name": "L1 current" },
+      "current_l2": { "name": "L2 current" },
+      "current_l3": { "name": "L3 current" }
+    },
+    "binary_sensor": {
+      "limiting": { "name": "Limiting" }
+    },
+    "select": {
+      "mode": {
+        "name": "Mode",
+        "state": {
+          "off": "Off",
+          "shadow": "Shadow (log only)",
+          "active": "Active"
+        }
+      }
+    },
+    "number": {
+      "target": { "name": "Target power" }
+    }
+  },
+  "selector": {
+    "phases": {
+      "options": { "1": "Single phase", "3": "Three phase" }
+    },
+    "actual_sign": {
+      "options": {
+        "positive": "Positive while consuming",
+        "negative": "Negative while consuming"
+      }
+    },
+    "load_phases": {
+      "options": { "all": "All phases", "l1": "L1 only", "l2": "L2 only", "l3": "L3 only" }
+    },
+    "on_missing_data": {
+      "options": {
+        "pause": "Pause the load (0 W)",
+        "hold": "Hold the current setpoint"
+      }
+    }
+  }
+}
