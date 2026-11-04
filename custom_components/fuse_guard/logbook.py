@@ -5,7 +5,11 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Any
 
-from homeassistant.components.logbook import LOGBOOK_ENTRY_MESSAGE, LOGBOOK_ENTRY_NAME
+from homeassistant.components.logbook import (
+    LOGBOOK_ENTRY_ENTITY_ID,
+    LOGBOOK_ENTRY_MESSAGE,
+    LOGBOOK_ENTRY_NAME,
+)
 from homeassistant.core import Event, HomeAssistant, callback
 
 from .const import DOMAIN, EVENT_ACTION, MODE_SHADOW
@@ -20,12 +24,15 @@ def async_describe_events(
     def describe(event: Event) -> dict[str, Any]:
         data = event.data
         prefix = "would set" if data.get("mode") == MODE_SHADOW else "set"
-        return {
+        entry = {
             LOGBOOK_ENTRY_NAME: data.get("name", "Fuse Guard"),
             LOGBOOK_ENTRY_MESSAGE: (
                 f"{prefix} {data.get('setpoint_entity')} to {int(data.get('write_w', 0))} W: "
                 f"{data.get('message')}"
             ),
         }
+        if entity_id := data.get("entity_id"):
+            entry[LOGBOOK_ENTRY_ENTITY_ID] = entity_id
+        return entry
 
     async_describe_event(DOMAIN, EVENT_ACTION, describe)

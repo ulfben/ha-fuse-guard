@@ -7,6 +7,7 @@ from datetime import timedelta
 import pytest
 from freezegun.api import FrozenDateTimeFactory
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import entity_registry as er
 from pytest_homeassistant_custom_component.common import (
     MockConfigEntry,
     async_fire_time_changed,
@@ -34,6 +35,7 @@ from custom_components.fuse_guard.const import (
     EVENT_ACTION,
     KIND_SETPOINT,
 )
+from custom_components.fuse_guard.logbook import async_describe_events
 
 SETPOINT = "number.battery_power"
 EMS_MODE = "sensor.ems_mode"
@@ -132,6 +134,25 @@ async def test_shadow_mode_decides_but_never_writes(hass: HomeAssistant, setup) 
     assert hass.states.get("binary_sensor.house_limiting").state == "on"
     assert calls == []
     assert events and events[-1].data["mode"] == "shadow"
+
+
+async def test_action_event_is_tied_to_the_status_sensor(hass: HomeAssistant, setup) -> None:
+    """The logbook filters by entity and device, so the event must carry both."""
+    events = []
+    hass.bus.async_listen(EVENT_ACTION, events.append)
+    set_phases(hass, l3=16.4)
+    await hass.async_block_till_done()
+    data = events[-1].data
+    assert data["entity_id"] == "sensor.house_status"
+    reg_entry = er.async_get(hass).async_get("sensor.house_status")
+    assert data["device_id"] is not None
+    assert data["device_id"] == reg_entry.device_id
+
+    described = {}
+    async_describe_events(hass, lambda domain, event, fn: described.update({event: fn}))
+    entry = described[EVENT_ACTION](events[-1])
+    assert entry["entity_id"] == "sensor.house_status"
+    assert entry["message"].startswith("would set number.")
 
 
 async def test_active_mode_cuts_the_setpoint(hass: HomeAssistant, setup) -> None:

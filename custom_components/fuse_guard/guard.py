@@ -17,6 +17,7 @@ from homeassistant.core import CALLBACK_TYPE, Event, HomeAssistant, State, callb
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import condition
 from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.event import (
     async_track_state_change_event,
     async_track_time_interval,
@@ -383,9 +384,17 @@ class FuseGuard:
         }
         self.history.append(entry)
         if decision.write_w is not None:
+            # Tie the event to the status sensor (and so the device), so the
+            # logbook can filter to it and the device page shows it.
+            registry = er.async_get(self.hass)
+            status = registry.async_get_entity_id("sensor", DOMAIN, f"{self.entry.entry_id}_status")
+            reg_entry = registry.async_get(status) if status else None
+            device_id = reg_entry.device_id if reg_entry else None
             self.hass.bus.async_fire(
                 EVENT_ACTION,
                 {
+                    ATTR_ENTITY_ID: status,
+                    "device_id": device_id,
                     "entry_id": self.entry.entry_id,
                     "name": self.entry.title,
                     "mode": self.mode,
