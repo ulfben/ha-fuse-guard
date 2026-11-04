@@ -23,7 +23,7 @@ jobs:
         with:
           category: integration
           # Brands and topics are needed only for the HACS default list.
-          ignore: brands topics
+          ignore: brands
 
   tests:
     runs-on: ubuntu-latest
