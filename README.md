@@ -93,6 +93,9 @@ Settings → Devices & services → **Add integration** → **Fuse Guard**.
    another order fits better, the check offers to apply it. When two phases
    happen to carry the same current, it says so instead of guessing; read
    again when the loads differ.
+
+   <img alt="The phase check: every sensor's live reading, all fresh and in agreement" src="docs/images/setup-phase-check.png" width="556">
+
 5. **Controllable load.**
    - **Power setpoint:** the `number` entity the guard turns down.
    - **Target power:** what the load wants when there is room, as a fixed
