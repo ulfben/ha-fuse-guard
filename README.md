@@ -108,6 +108,8 @@ Settings → Devices & services → **Add integration** → **Fuse Guard**.
      actually holds and the power it actually draws, and which sign that
      power has. With them, the guard won't give more power to a load that
      isn't following.
+
+   <img alt="The controllable load form: setpoint, target, conditions and phases" src="https://raw.githubusercontent.com/ulfben/ha-fuse-guard/main/docs/images/setup-load.png" width="569">
 6. **Check the load.** What those entities read right now, and a warning if,
    for example, the actual power has the wrong sign.
 
