@@ -59,7 +59,7 @@ async def _run_flow(hass: HomeAssistant, **load) -> dict:
     assert result["step_id"] == "load"
     result = await hass.config_entries.flow.async_configure(
         result["flow_id"],
-        {"setpoint_entity": SETPOINT, "actual_sign": "positive", "load_phases": "all", **load},
+        {"setpoint_entity": SETPOINT, "load_phases": "all", **load},
     )
     if result["type"] is not FlowResultType.MENU:
         return result  # an error form or an abort
@@ -208,7 +208,6 @@ async def test_check_page_finds_and_fixes_a_swapped_meter(hass: HomeAssistant) -
         {
             "setpoint_entity": SETPOINT,
             "target_w": 6000,
-            "actual_sign": "positive",
             "load_phases": "all",
         },
     )
@@ -242,9 +241,8 @@ async def test_load_check_flags_a_reversed_actual_power_sign(hass: HomeAssistant
         {
             "setpoint_entity": SETPOINT,
             "target_w": 6000,
-            "actual_entity": "sensor.battery_power",
-            "actual_sign": "positive",
             "load_phases": "all",
+            "feedback": {"actual_entity": "sensor.battery_power", "actual_sign": "positive"},
         },
     )
     assert result["step_id"] == "load_check"
@@ -327,3 +325,45 @@ async def test_ticking_a_meter_in_use_keeps_its_phases(hass: HomeAssistant) -> N
     )
     for phase, ids in mapped.items():
         assert _suggested(result, phase) == ids
+
+
+async def test_load_feedback_section_is_stored_flat(hass: HomeAssistant) -> None:
+    """The form nests the optional feedback fields; the entry stores them flat."""
+    _add_entities(hass)
+    hass.states.async_set("sensor.battery_power", "5800", {"device_class": "power"})
+    result = await _run_flow(
+        hass,
+        target_w=6000,
+        feedback={"actual_entity": "sensor.battery_power", "actual_sign": "negative"},
+    )
+    load = result["options"][CONF_LOADS][0]
+    assert load["actual_entity"] == "sensor.battery_power"
+    assert load["actual_sign"] == "negative"
+    assert "feedback" not in load
+
+
+async def test_load_feedback_defaults_when_section_left_closed(hass: HomeAssistant) -> None:
+    _add_entities(hass)
+    load = (await _run_flow(hass, target_w=6000))["options"][CONF_LOADS][0]
+    assert load["actual_sign"] == "positive"
+    assert "readback_entity" not in load and "feedback" not in load
+
+
+async def test_options_load_form_opens_feedback_when_set(hass: HomeAssistant) -> None:
+    _add_entities(hass)
+    hass.states.async_set("sensor.battery_power", "5800", {"device_class": "power"})
+    entry = (
+        await _run_flow(
+            hass,
+            target_w=6000,
+            feedback={"actual_entity": "sensor.battery_power", "actual_sign": "positive"},
+        )
+    )["result"]
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], {"next_step_id": "load"}
+    )
+    feedback = result["data_schema"].schema["feedback"]
+    assert feedback.options["collapsed"] is False
+    actual = next(k for k in feedback.schema.schema if k == "actual_entity")
+    assert actual.description["suggested_value"] == "sensor.battery_power"

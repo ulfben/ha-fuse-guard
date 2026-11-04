@@ -12,6 +12,8 @@ heat pump and the battery all land on the same phase and the main fuse trips.
 Fuse Guard watches each phase and trims the load just enough to stay under
 the limit, then gives the power back once there is room.
 
+<img alt="The Fuse Guard card: each phase against the fuse, the load against its target" src="docs/images/card-dark.png" width="267">
+
 - **Uses every meter you have.** Each phase reads as the highest fresh value
   among its meters, so a slow or failed meter never hides an overload.
 - **Cuts fast, in proportion.** The cut matches the overload, and a second
@@ -76,8 +78,14 @@ Settings → Devices & services → **Add integration** → **Fuse Guard**.
    with what it reads right now. Tick the ones that measure the whole house.
    Meters on the main fuse agree with each other; an inverter's own output or
    a single circuit won't.
+
+   <img alt="Picking meters, each with its live readings" src="docs/images/setup-meters.png" width="540">
+
 3. **Phase current sensors.** The ticked meters' sensors, filled in per
    phase. Change anything you like.
+
+   <img alt="Phase current sensors, filled in from the picked meters" src="docs/images/setup-sources.png" width="400">
+
 4. **Check the phase sensors.** A table of every sensor's current reading,
    with warnings for stale, implausible, duplicated or disagreeing sensors.
    Meters that label phases A/B/C are first filled in as A = L1, B = L2,
@@ -94,9 +102,12 @@ Settings → Devices & services → **Add integration** → **Fuse Guard**.
      when the load is active. Example for a battery that evcc puts into
      forced charge: *State: EMS mode is 2* and *State: charge command is
      170*. Leave it empty if the load is always active.
-   - **Setpoint readback** and **Actual power** (optional): sensors for the
-     value the device actually holds and the power it actually draws. With
-     them, the guard won't give more power to a load that isn't following.
+   - **Load phases:** which phases the load draws from.
+   - **Feedback from the device** (optional, folded away): **Setpoint
+     readback** and **Actual power**, sensors for the value the device
+     actually holds and the power it actually draws, and which sign that
+     power has. With them, the guard won't give more power to a load that
+     isn't following.
 6. **Check the load.** What those entities read right now, and a warning if,
    for example, the actual power has the wrong sign.
 
@@ -121,6 +132,8 @@ advanced timing settings.
 Every write shows in the logbook ("set number.… to 5000 W: THROTTLE; …") and
 fires a `fuse_guard_action` event you can use in automations. In Shadow mode
 the logbook says "would set" instead.
+
+<img alt="The Fuse Guard device page: sensors, mode and recent activity" src="docs/images/integration-page.png" width="809">
 
 ## Dashboard card
 

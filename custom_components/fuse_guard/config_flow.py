@@ -15,6 +15,7 @@ from homeassistant.config_entries import (
 )
 from homeassistant.const import UnitOfElectricCurrent, UnitOfPower
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.data_entry_flow import section
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import condition, selector
 from homeassistant.helpers import config_validation as cv
@@ -75,6 +76,9 @@ from .setup_checks import (
 )
 
 CONF_METERS = "meters"  # flow-only field: the meters picked in the first sensor step
+# Flow-only: the collapsible section that holds the optional device feedback.
+SECTION_FEEDBACK = "feedback"
+_FEEDBACK_KEYS = (CONF_READBACK_ENTITY, CONF_ACTUAL_ENTITY, CONF_ACTUAL_SIGN)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -165,7 +169,25 @@ def _sources_schema(phases: int) -> vol.Schema:
     return vol.Schema(fields)
 
 
-def _load_schema(phases: int) -> vol.Schema:
+def _load_schema(phases: int, collapsed: bool = True) -> vol.Schema:
+    feedback = vol.Schema(
+        {
+            vol.Optional(CONF_READBACK_ENTITY): selector.EntitySelector(
+                selector.EntitySelectorConfig(
+                    filter=[
+                        selector.EntityFilterSelectorConfig(domain="sensor", device_class="power"),
+                        selector.EntityFilterSelectorConfig(domain="number"),
+                    ]
+                )
+            ),
+            vol.Optional(CONF_ACTUAL_ENTITY): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="sensor", device_class="power")
+            ),
+            vol.Required(CONF_ACTUAL_SIGN, default=SIGN_POSITIVE): _select(
+                [SIGN_POSITIVE, SIGN_NEGATIVE], CONF_ACTUAL_SIGN
+            ),
+        }
+    )
     return vol.Schema(
         {
             vol.Required(CONF_SETPOINT_ENTITY): selector.EntitySelector(
@@ -176,20 +198,26 @@ def _load_schema(phases: int) -> vol.Schema:
             ),
             vol.Optional(CONF_TARGET_W): _number(0, 100000, 100, UnitOfPower.WATT),
             vol.Optional(CONF_ACTIVE_CONDITIONS): _ConditionSelector(),
-            vol.Optional(CONF_READBACK_ENTITY): selector.EntitySelector(
-                selector.EntitySelectorConfig(domain=["sensor", "number"])
-            ),
-            vol.Optional(CONF_ACTUAL_ENTITY): selector.EntitySelector(
-                selector.EntitySelectorConfig(domain="sensor", device_class="power")
-            ),
-            vol.Required(CONF_ACTUAL_SIGN, default=SIGN_POSITIVE): _select(
-                [SIGN_POSITIVE, SIGN_NEGATIVE], CONF_ACTUAL_SIGN
-            ),
             vol.Required(CONF_LOAD_PHASES, default=LOAD_PHASES_ALL): _select(
                 [LOAD_PHASES_ALL, *PHASE_KEYS[:phases]], CONF_LOAD_PHASES
             ),
+            vol.Optional(SECTION_FEEDBACK, default={}): section(feedback, {"collapsed": collapsed}),
         }
     )
+
+
+def _flatten_load(user_input: dict[str, Any]) -> dict[str, Any]:
+    """Lift the feedback section's fields to the top level, where they are stored."""
+    values = {k: v for k, v in user_input.items() if k != SECTION_FEEDBACK}
+    values.update(user_input.get(SECTION_FEEDBACK) or {})
+    return values
+
+
+def _nest_load(values: dict[str, Any]) -> dict[str, Any]:
+    """The reverse of _flatten_load, for the form's suggested values."""
+    nested = {k: v for k, v in values.items() if k not in _FEEDBACK_KEYS}
+    nested[SECTION_FEEDBACK] = {k: values[k] for k in _FEEDBACK_KEYS if k in values}
+    return nested
 
 
 def _advanced_schema() -> vol.Schema:
@@ -400,8 +428,11 @@ class _SetupSteps:
         return errors
 
     def _load_form(self, values: dict[str, Any] | None, errors: dict[str, str]):
+        values = values or _form_values(self._data)
+        # Open the feedback section only when something in it is already set.
+        collapsed = not any(values.get(k) for k in (CONF_READBACK_ENTITY, CONF_ACTUAL_ENTITY))
         schema = self.add_suggested_values_to_schema(
-            _load_schema(self._data[CONF_PHASES]), values or _form_values(self._data)
+            _load_schema(self._data[CONF_PHASES], collapsed), _nest_load(values)
         )
         return self.async_show_form(step_id="load", data_schema=schema, errors=errors)
 
@@ -443,6 +474,7 @@ class FuseGuardConfigFlow(_SetupSteps, ConfigFlow, domain=DOMAIN):
     async def async_step_load(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
+            user_input = _flatten_load(user_input)
             errors = await self._validate_load_input(user_input)
             if not errors:
                 # One guard per setpoint, so two guards can never fight over a load.
@@ -521,6 +553,7 @@ class FuseGuardOptionsFlow(_SetupSteps, OptionsFlow):
     async def async_step_load(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
+            user_input = _flatten_load(user_input)
             errors = await self._validate_load_input(user_input)
             setpoint = user_input[CONF_SETPOINT_ENTITY]
             if not errors and any(

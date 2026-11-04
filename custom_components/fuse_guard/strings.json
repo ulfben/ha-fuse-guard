@@ -19,7 +19,9 @@
       "meters": {
         "title": "Meters on your main fuse",
         "description": "Found {count} meters with a current sensor per phase. Pick every one that measures the current through your main fuse (not a single circuit, an EV charger or a solar inverter's own output). The next step fills in their sensors, and you can still change them there. Pick none to choose sensors yourself.",
-        "data": { "meters": "Meters" }
+        "data": {
+          "meters": "Meters"
+        }
       },
       "sources": {
         "title": "Phase current sensors",
@@ -54,24 +56,36 @@
       },
       "load": {
         "title": "Controllable load",
-        "description": "The guard lowers this setpoint when a phase is over the limit and raises it again when there is room.",
+        "description": "Pick the setpoint the guard may turn down, what the load wants when there is room, and when the guard is allowed to write.",
         "data": {
           "setpoint_entity": "Power setpoint",
           "target_entity": "Target power from entity",
           "target_w": "Fixed target power",
           "active_conditions": "Only write while",
-          "readback_entity": "Setpoint readback",
-          "actual_entity": "Actual power",
-          "actual_sign": "Actual power sign",
           "load_phases": "Load phases"
         },
         "data_description": {
-          "setpoint_entity": "A number entity in W, for example a battery's forced charge power.",
-          "target_entity": "The power the load wants when there is room. Set this or a fixed target, not both.",
+          "setpoint_entity": "The number entity in W that the guard turns down, for example a battery's forced-charge power.",
+          "target_entity": "What the load wants when there is room, for example the charge power your scheduler asks for. Use this or a fixed target, not both.",
           "target_w": "Used when no target entity is set.",
-          "active_conditions": "Optional. The guard only changes the setpoint while all these conditions hold, e.g. while the battery is in forced-charge mode. Leave empty if the load is always active.",
-          "readback_entity": "Optional. A sensor with the value the device actually holds. Defaults to the setpoint's own state.",
-          "actual_entity": "Optional. The guard waits for the load to follow before giving more power."
+          "active_conditions": "Optional. The guard only changes the setpoint while all these conditions hold, for example while the battery is in forced-charge mode. Leave empty if the load is always active.",
+          "load_phases": "The phases the load draws from. The guard uses this to work out how many watts each amp of overload costs."
+        },
+        "sections": {
+          "feedback": {
+            "name": "Feedback from the device (optional)",
+            "description": "Lets the guard check that the device follows its commands. Without these it trusts the setpoint.",
+            "data": {
+              "readback_entity": "Setpoint readback",
+              "actual_entity": "Actual power",
+              "actual_sign": "Actual power sign"
+            },
+            "data_description": {
+              "readback_entity": "The value the device actually holds, often a sensor with the same name as the setpoint. Defaults to the setpoint's own state.",
+              "actual_entity": "The power the load really draws. With it, the guard won't give more power to a load that isn't following.",
+              "actual_sign": "Whether this sensor is positive or negative while the load draws power. The next step warns if it looks wrong."
+            }
+          }
         }
       }
     },
@@ -103,7 +117,9 @@
       "meters": {
         "title": "Meters on your main fuse",
         "description": "Found {count} meters with a current sensor per phase. Pick meters to replace the current sensors with theirs, or pick none to keep and edit the current ones.",
-        "data": { "meters": "Meters" }
+        "data": {
+          "meters": "Meters"
+        }
       },
       "check": {
         "title": "Check the phase sensors",
@@ -125,33 +141,63 @@
       },
       "fuse": {
         "title": "Main fuse",
+        "description": "The guard keeps every phase below the fuse rating minus the safety margin.",
         "data": {
           "fuse_a": "Main fuse",
           "phases": "Phases",
           "margin_a": "Safety margin",
           "voltage": "Nominal voltage"
+        },
+        "data_description": {
+          "margin_a": "The guard starts cutting at fuse minus margin, e.g. 15.4 A for a 16 A fuse with 0.6 A margin.",
+          "voltage": "Used to convert amps to watts."
         }
       },
       "sources": {
         "title": "Phase current sensors",
+        "description": "Pick every sensor that measures each phase. The guard uses the highest fresh reading, so extra meters only make it safer. Meters that label phases A/B/C are filled in as A = L1, B = L2, C = L3; the next step checks whether that is right.",
         "data": {
           "l1": "L1 current sensors",
           "l2": "L2 current sensors",
           "l3": "L3 current sensors",
           "freshness_s": "Freshness timeout"
+        },
+        "data_description": {
+          "freshness_s": "A reading older than this is ignored. If no reading on a phase is fresh, the guard fails safe."
         }
       },
       "load": {
         "title": "Controllable load",
+        "description": "Pick the setpoint the guard may turn down, what the load wants when there is room, and when the guard is allowed to write.",
         "data": {
           "setpoint_entity": "Power setpoint",
           "target_entity": "Target power from entity",
           "target_w": "Fixed target power",
           "active_conditions": "Only write while",
-          "readback_entity": "Setpoint readback",
-          "actual_entity": "Actual power",
-          "actual_sign": "Actual power sign",
           "load_phases": "Load phases"
+        },
+        "data_description": {
+          "setpoint_entity": "The number entity in W that the guard turns down, for example a battery's forced-charge power.",
+          "target_entity": "What the load wants when there is room, for example the charge power your scheduler asks for. Use this or a fixed target, not both.",
+          "target_w": "Used when no target entity is set.",
+          "active_conditions": "Optional. The guard only changes the setpoint while all these conditions hold, for example while the battery is in forced-charge mode. Leave empty if the load is always active.",
+          "load_phases": "The phases the load draws from. The guard uses this to work out how many watts each amp of overload costs."
+        },
+        "sections": {
+          "feedback": {
+            "name": "Feedback from the device (optional)",
+            "description": "Lets the guard check that the device follows its commands. Without these it trusts the setpoint.",
+            "data": {
+              "readback_entity": "Setpoint readback",
+              "actual_entity": "Actual power",
+              "actual_sign": "Actual power sign"
+            },
+            "data_description": {
+              "readback_entity": "The value the device actually holds, often a sensor with the same name as the setpoint. Defaults to the setpoint's own state.",
+              "actual_entity": "The power the load really draws. With it, the guard won't give more power to a load that isn't following.",
+              "actual_sign": "Whether this sensor is positive or negative while the load draws power. The next step warns if it looks wrong."
+            }
+          }
         }
       },
       "advanced": {
@@ -209,15 +255,29 @@
           "full_rate": "Full rate"
         }
       },
-      "ceiling": { "name": "Ceiling" },
-      "highest_current": { "name": "Highest phase current" },
-      "headroom": { "name": "Headroom" },
-      "current_l1": { "name": "L1 current" },
-      "current_l2": { "name": "L2 current" },
-      "current_l3": { "name": "L3 current" }
+      "ceiling": {
+        "name": "Ceiling"
+      },
+      "highest_current": {
+        "name": "Highest phase current"
+      },
+      "headroom": {
+        "name": "Headroom"
+      },
+      "current_l1": {
+        "name": "L1 current"
+      },
+      "current_l2": {
+        "name": "L2 current"
+      },
+      "current_l3": {
+        "name": "L3 current"
+      }
     },
     "binary_sensor": {
-      "limiting": { "name": "Limiting" }
+      "limiting": {
+        "name": "Limiting"
+      }
     },
     "select": {
       "mode": {
@@ -230,12 +290,17 @@
       }
     },
     "number": {
-      "target": { "name": "Target power" }
+      "target": {
+        "name": "Target power"
+      }
     }
   },
   "selector": {
     "phases": {
-      "options": { "1": "Single phase", "3": "Three phase" }
+      "options": {
+        "1": "Single phase",
+        "3": "Three phase"
+      }
     },
     "actual_sign": {
       "options": {
@@ -244,7 +309,12 @@
       }
     },
     "load_phases": {
-      "options": { "all": "All phases", "l1": "L1 only", "l2": "L2 only", "l3": "L3 only" }
+      "options": {
+        "all": "All phases",
+        "l1": "L1 only",
+        "l2": "L2 only",
+        "l3": "L3 only"
+      }
     },
     "on_missing_data": {
       "options": {
