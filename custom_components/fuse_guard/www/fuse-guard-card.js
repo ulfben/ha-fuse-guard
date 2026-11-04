@@ -36,6 +36,23 @@ const escapeHtml = (value) =>
     (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c],
   );
 
+// Format a time the way the user's HA profile asks: time_format is
+// "language" (the language's default), "system" (the browser's), "12" or "24",
+// and time_zone "server" shows the server's clock instead of the browser's.
+function formatTime(hass, iso) {
+  const locale = hass.locale || {};
+  const options = { hour: "2-digit", minute: "2-digit", second: "2-digit" };
+  if (locale.time_format === "12") options.hour12 = true;
+  if (locale.time_format === "24") options.hourCycle = "h23";
+  if (locale.time_zone === "server" && hass.config?.time_zone) options.timeZone = hass.config.time_zone;
+  const language = locale.time_format === "system" ? undefined : locale.language;
+  try {
+    return new Date(iso).toLocaleTimeString(language, options);
+  } catch {
+    return new Date(iso).toLocaleTimeString(undefined, options);
+  }
+}
+
 const number = (state) => {
   const value = Number.parseFloat(state?.state);
   return Number.isFinite(value) ? value : null;
@@ -151,7 +168,7 @@ class FuseGuardCard extends HTMLElement {
       this._config.show_log && Array.isArray(a.recent) && a.recent.length
         ? `<ul class="log">${a.recent
             .map((r) => {
-              const time = new Date(r.time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+              const time = formatTime(hass, r.time);
               return `<li><span class="time">${escapeHtml(time)}</span>${escapeHtml(r.message)}</li>`;
             })
             .join("")}</ul>`
