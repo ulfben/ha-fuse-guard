@@ -1,7 +1,4 @@
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/ulfben/ha-fuse-guard/main/custom_components/fuse_guard/brand/dark_logo@2x.png">
-  <img alt="Fuse Guard" src="https://raw.githubusercontent.com/ulfben/ha-fuse-guard/main/custom_components/fuse_guard/brand/logo@2x.png" height="72">
-</picture>
+# <img alt="" src="https://raw.githubusercontent.com/ulfben/ha-fuse-guard/main/custom_components/fuse_guard/brand/icon@2x.png" height="48" align="top"> Fuse Guard
 
 A Home Assistant integration that keeps every phase of your main fuse below
 its rating by turning down one controllable load: a home battery's grid
@@ -12,7 +9,7 @@ heat pump and the battery all land on the same phase and the main fuse trips.
 Fuse Guard watches each phase and trims the load just enough to stay under
 the limit, then gives the power back once there is room.
 
-<img alt="The Fuse Guard card: each phase against the fuse, the load against its target" src="docs/images/card-dark.png" width="267">
+<img alt="The Fuse Guard card: each phase against the fuse, the load against its target" src="https://raw.githubusercontent.com/ulfben/ha-fuse-guard/main/docs/images/card-dark.png" width="267">
 
 - **Uses every meter you have.** Each phase reads as the highest fresh value
   among its meters, so a slow or failed meter never hides an overload.
@@ -49,7 +46,7 @@ the limit, then gives the power back once there is room.
   their Modbus integrations) or a heat pump's power limit.
 
 Setpoints in amps (EV chargers) and switched loads behind smart plugs are on
-the roadmap ([docs/DESIGN.md](docs/DESIGN.md), section 10).
+the roadmap ([docs/DESIGN.md](https://github.com/ulfben/ha-fuse-guard/blob/main/docs/DESIGN.md), section 10).
 
 ## Installation
 
@@ -79,12 +76,12 @@ Settings → Devices & services → **Add integration** → **Fuse Guard**.
    Meters on the main fuse agree with each other; an inverter's own output or
    a single circuit won't.
 
-   <img alt="Picking meters, each with its live readings" src="docs/images/setup-meters.png" width="540">
+   <img alt="Picking meters, each with its live readings" src="https://raw.githubusercontent.com/ulfben/ha-fuse-guard/main/docs/images/setup-meters.png" width="540">
 
 3. **Phase current sensors.** The ticked meters' sensors, filled in per
    phase. Change anything you like.
 
-   <img alt="Phase current sensors, filled in from the picked meters" src="docs/images/setup-sources.png" width="400">
+   <img alt="Phase current sensors, filled in from the picked meters" src="https://raw.githubusercontent.com/ulfben/ha-fuse-guard/main/docs/images/setup-sources.png" width="400">
 
 4. **Check the phase sensors.** A table of every sensor's current reading,
    with warnings for stale, implausible, duplicated or disagreeing sensors.
@@ -94,7 +91,7 @@ Settings → Devices & services → **Add integration** → **Fuse Guard**.
    happen to carry the same current, it says so instead of guessing; read
    again when the loads differ.
 
-   <img alt="The phase check: every sensor's live reading, all fresh and in agreement" src="docs/images/setup-phase-check.png" width="556">
+   <img alt="The phase check: every sensor's live reading, all fresh and in agreement" src="https://raw.githubusercontent.com/ulfben/ha-fuse-guard/main/docs/images/setup-phase-check.png" width="556">
 
 5. **Controllable load.**
    - **Power setpoint:** the `number` entity the guard turns down.
@@ -136,7 +133,7 @@ Every write shows in the logbook ("set number.… to 5000 W: THROTTLE; …") and
 fires a `fuse_guard_action` event you can use in automations. In Shadow mode
 the logbook says "would set" instead.
 
-<img alt="The Fuse Guard device page: sensors, mode and recent activity" src="docs/images/integration-page.png" width="809">
+<img alt="The Fuse Guard device page: sensors, mode and recent activity" src="https://raw.githubusercontent.com/ulfben/ha-fuse-guard/main/docs/images/integration-page.png" width="809">
 
 ## Dashboard card
 
@@ -175,7 +172,7 @@ Every few seconds, and whenever a meter reports:
    (or holds the setpoint, if you choose that).
 
 These steps were replayed against real overloads with a simulated battery;
-see [docs/DESIGN.md](docs/DESIGN.md) for the design and the results.
+see [docs/DESIGN.md](https://github.com/ulfben/ha-fuse-guard/blob/main/docs/DESIGN.md) for the design and the results.
 
 <details>
 <summary>Advanced settings and their defaults</summary>
@@ -224,4 +221,4 @@ plain Python with no Home Assistant imports, so they can be tested directly.
 
 ## License
 
-[MIT](LICENSE) © Ulf Benjaminsson
+[MIT](https://github.com/ulfben/ha-fuse-guard/blob/main/LICENSE) © Ulf Benjaminsson
