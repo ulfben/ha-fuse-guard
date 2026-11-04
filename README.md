@@ -1,5 +1,9 @@
 # <img alt="" src="https://raw.githubusercontent.com/ulfben/ha-fuse-guard/main/custom_components/fuse_guard/brand/icon@2x.png" height="48" align="top"> Fuse Guard
 
+[![Validate](https://github.com/ulfben/ha-fuse-guard/actions/workflows/validate.yml/badge.svg?branch=main)](https://github.com/ulfben/ha-fuse-guard/actions/workflows/validate.yml)
+[![Release](https://img.shields.io/github/v/release/ulfben/ha-fuse-guard)](https://github.com/ulfben/ha-fuse-guard/releases/latest)
+[![HACS Custom](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz/docs/faq/custom_repositories/)
+
 A Home Assistant integration that keeps every phase of your main fuse below
 its rating by turning down one controllable load: a home battery's grid
 charging, a heat pump's power limit, anything with a power setpoint in watts.
