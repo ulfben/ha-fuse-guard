@@ -19,11 +19,11 @@ next to a scheduler like evcc that owns the load's mode.
 ### Non-goals (v1)
 
 - On/off loads behind smart plugs, and several loads with priorities. Both are planned
-  for v2 (section 9). The config already stores loads as a list, so v2 needs no
+  for v2 (section 10). The config already stores loads as a list, so v2 needs no
   migration.
 - Export limiting.
 - Being the sole Modbus writer for a device.
-- Setpoints in amps (EV chargers). Planned for v1.1 (section 9).
+- Setpoints in amps (EV chargers). Planned for v1.1 (section 10).
 
 ### Prior art checked (2026-11-03)
 
@@ -274,15 +274,21 @@ hacs.json  README.md  .github/workflows/{validate,tests}.yml
   - ruff;
   - pytest.
 
-## 8. Open questions
+## 8. Release
 
-- The license is the owner's choice (MIT is common for HACS).
-- The final name: "Fuse Guard" / `fuse_guard`. It should be checked for clashes in the
-  HACS default list before submitting there.
+- **Name:** "Fuse Guard" / `fuse_guard`. Checked 2026-11-04: no clash in the HACS
+  default list, in Home Assistant core, or in home-assistant/brands.
+- **Versioning:** CalVer `YYYY.MM.PATCH`, like Home Assistant itself. The first
+  release is `2026.11.0`. Fixes in the same month bump the patch; a new month starts
+  at `.0`. Each release is a `vYYYY.MM.PATCH` tag with a GitHub release, which is
+  what HACS offers as updates. `manifest.json` carries the same version.
+
+## 9. Open questions
+
 - Should spike tolerance modelled on breaker curves (EVSE Load Balancer's "optimised" mode)
   be an option? It is out of scope for v1.
 
-## 9. Later versions
+## 10. Later versions
 
 - v1.1: setpoints in A, with a minimum setpoint (EV chargers below 6 A → 0).
 - v2: several loads, each with a priority. There are two kinds:

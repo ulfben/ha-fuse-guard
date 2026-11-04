@@ -47,7 +47,7 @@ the limit, then gives the power back once there is room.
   their Modbus integrations) or a heat pump's power limit.
 
 Setpoints in amps (EV chargers) and switched loads behind smart plugs are on
-the roadmap ([docs/DESIGN.md](docs/DESIGN.md), section 9).
+the roadmap ([docs/DESIGN.md](docs/DESIGN.md), section 10).
 
 ## Installation
 
