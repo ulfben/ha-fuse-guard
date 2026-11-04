@@ -94,8 +94,17 @@ order the setup shows them.
    <img alt="Picking meters, each with its live readings" src="https://raw.githubusercontent.com/ulfben/ha-fuse-guard/main/docs/images/setup-meters.png" width="540">
 
 3. **The phase current sensors.** Third, the guard turns the meters you
-   ticked into one list of current sensors per phase. It fills them in for
-   you; change anything you like, or add a sensor it didn't find.
+   ticked into one list of current sensors per phase, and fills them in for
+   you. Check that the sensors on each phase belong together. A common
+   problem is a meter whose current clamps sit on different phases than its
+   labels say, so its "phase A" is really your L2 or L3. If so, move its
+   sensors to the right phase here. The next step helps you find out.
+
+   In the screenshot below, the inverter's sensors (*Meter phase A/B/C
+   current inv 1*) turned out to be rotated: its phase B is really L1, C is
+   L2 and A is L3. They are shown already moved, so each phase lists the
+   inverter's sensor next to the two smart meter readers' sensors for the
+   same phase.
 
    <img alt="Phase current sensors, filled in from the picked meters" src="https://raw.githubusercontent.com/ulfben/ha-fuse-guard/main/docs/images/setup-sources.png" width="400">
 
