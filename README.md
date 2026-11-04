@@ -68,53 +68,82 @@ After installing or updating, reload the Home Assistant page in your browser
 
 Settings → Devices & services → **Add integration** → **Fuse Guard**.
 
-1. **Main fuse.** The fuse rating, the number of phases, and a safety margin.
-   The guard starts cutting at fuse minus margin: 15.4 A for a 16 A fuse
-   with the default 0.6 A.
-2. **Meters on your main fuse.** Fuse Guard lists the meters it found, each
-   with what it reads right now. Tick the ones that measure the whole house.
-   Meters on the main fuse agree with each other; an inverter's own output or
-   a single circuit won't.
+Setup takes six short steps. You describe your fuse, show the guard where to
+measure it, and tell it which load it may turn down. Each step shows live
+readings and warns about anything that looks wrong, so you can see whether a
+choice makes sense before you go on. The list below follows the steps in the
+order the setup shows them.
+
+1. **The main fuse.** First, the guard needs to know what it is protecting:
+   the fuse rating, the number of phases, and a safety margin. The guard
+   starts cutting at the fuse rating minus the margin, so with a 16 A fuse
+   and the default 0.6 A margin it acts at 15.4 A. The margin leaves room
+   for the meters' delay and for loads that switch on between two readings.
+
+2. **The meters on your main fuse.** Second, the guard needs to know which
+   devices can measure the current through the main fuse. It lists every
+   meter it found, each with what it reads right now. Tick the ones that
+   measure the whole house: a smart meter reader, an energy meter on the
+   incoming supply, or the grid meter of a solar or battery inverter. Meters
+   that sit on the main fuse agree with each other. An inverter's own
+   output, or a meter on a single circuit, won't, and the readings next to
+   each meter make that easy to spot. Tick several if you have them: the
+   guard uses the highest fresh reading per phase, so one slow or failed
+   meter never hides an overload.
 
    <img alt="Picking meters, each with its live readings" src="https://raw.githubusercontent.com/ulfben/ha-fuse-guard/main/docs/images/setup-meters.png" width="540">
 
-3. **Phase current sensors.** The ticked meters' sensors, filled in per
-   phase. Change anything you like.
+3. **The phase current sensors.** Third, the guard turns the meters you
+   ticked into one list of current sensors per phase. It fills them in for
+   you; change anything you like, or add a sensor it didn't find.
 
    <img alt="Phase current sensors, filled in from the picked meters" src="https://raw.githubusercontent.com/ulfben/ha-fuse-guard/main/docs/images/setup-sources.png" width="400">
 
-4. **Check the phase sensors.** A table of every sensor's current reading,
-   with warnings for stale, implausible, duplicated or disagreeing sensors.
-   Meters that label phases A/B/C are first filled in as A = L1, B = L2,
-   C = L3, which often isn't how they are wired. When the readings show
-   another order fits better, the check offers to apply it. When two phases
-   happen to carry the same current, it says so instead of guessing; read
-   again when the loads differ.
+4. **Check the phase sensors.** Fourth, before the guard relies on those
+   sensors, it shows a table of what each one reads right now. It warns
+   about sensors that are stale, implausible, duplicated, or that disagree
+   with the others on the same phase.
+
+   This step also catches a common wiring surprise. Meters that label their
+   phases A/B/C are first filled in as A = L1, B = L2, C = L3, which often
+   isn't how they are connected. When the readings show that another order
+   fits better, the check offers to apply it. When two phases happen to
+   carry the same current, it says so instead of guessing; switch something
+   on and read again.
 
    <img alt="The phase check: every sensor's live reading, all fresh and in agreement" src="https://raw.githubusercontent.com/ulfben/ha-fuse-guard/main/docs/images/setup-phase-check.png" width="556">
 
-5. **Controllable load.**
+5. **The controllable load.** Fifth, the guard needs something it may turn
+   down when a phase gets too close to the limit. That is a power setpoint
+   in watts, such as a battery's forced-charge power or a heat pump's power
+   limit.
    - **Power setpoint:** the `number` entity the guard turns down.
-   - **Target power:** what the load wants when there is room, as a fixed
-     value or from an entity (for example the charge power your scheduler
-     asks for).
+   - **Target power:** what the load should get when there is room, as a
+     fixed value or from an entity (for example the charge power your
+     scheduler asks for). The guard never gives the load more than this.
    - **Only write while:** conditions, built like an automation's, that say
-     when the load is active. Example for a battery that evcc puts into
-     forced charge: *State: EMS mode is 2* and *State: charge command is
-     170*. Leave it empty if the load is always active.
-   - **Load phases:** which phases the load draws from.
+     when the load is running and the guard may change its setpoint. For a
+     battery that evcc puts into forced charge, for example: *State: EMS
+     mode is 2* and *State: charge command is 170*. Outside these conditions
+     the guard leaves the setpoint alone, so your scheduler stays in charge
+     of *when* the load runs. Leave it empty if the load is always active.
+   - **Load phases:** which phases the load draws from. The guard uses this
+     to work out how many watts it has to cut for each amp of overload.
    - **Feedback from the device** (optional, folded away): **Setpoint
-     readback** and **Actual power**, sensors for the value the device
-     actually holds and the power it actually draws, and which sign that
-     power has. With them, the guard won't give more power to a load that
-     isn't following.
+     readback** and **Actual power** are sensors for the value the device
+     actually holds and the power it actually draws, plus the sign of that
+     power. With them, the guard won't give more power to a load that isn't
+     following its setpoint.
 
    <img alt="The controllable load form: setpoint, target, conditions and phases" src="https://raw.githubusercontent.com/ulfben/ha-fuse-guard/main/docs/images/setup-load.png" width="569">
-6. **Check the load.** What those entities read right now, and a warning if,
-   for example, the actual power has the wrong sign.
 
-A new guard starts in **Shadow** mode. Watch its decisions for a few days,
-then switch **Mode** to **Active**.
+6. **Check the load.** Last, the guard shows what those entities read right
+   now, and warns if something doesn't add up, for example an actual power
+   with the wrong sign.
+
+A new guard starts in **Shadow** mode: it makes every decision and logs it,
+but never writes. Watch its decisions for a few days (in the logbook or on
+its card). When they look right, switch **Mode** to **Active**.
 
 Everything can be changed later under **Configure**, which also has the
 advanced timing settings.
