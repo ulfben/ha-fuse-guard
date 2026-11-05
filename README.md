@@ -162,8 +162,10 @@ A new guard starts in **Shadow** mode: it makes every decision and logs it,
 but never writes. Watch its decisions for a few days (in the logbook or on
 its card). When they look right, switch **Mode** to **Active**.
 
-Everything can be changed later under **Configure**, which also has the
-advanced timing settings.
+Everything can be changed later under **Configure**: the main fuse, the
+phase sensors, the load, and **Advanced timing**, which tunes how often the
+guard checks, how much it cuts and how fast it gives power back. The defaults,
+and what each one does, are listed under [How it decides](#how-it-decides).
 
 ## Entities
 
@@ -196,12 +198,6 @@ entity: sensor.fuse_guard_status
 show_log: true
 ```
 
-The integration adds the card to **Settings → Dashboards → Resources** for you,
-so browsers and the HA app both load it. If your resources are set up in YAML,
-it can't add one there; it loads the card through the page instead, which the
-HA app may miss. In that case add `/fuse_guard/fuse-guard-card.js` as a
-JavaScript module resource yourself.
-
 ## How it decides
 
 Every few seconds, and whenever a meter reports:
@@ -219,11 +215,8 @@ Every few seconds, and whenever a meter reports:
 5. **Missing or stale data** while the load is active pauses the load
    (or holds the setpoint, if you choose that).
 
-These steps were replayed against real overloads with a simulated battery;
-see [docs/DESIGN.md](https://github.com/ulfben/ha-fuse-guard/blob/main/docs/DESIGN.md) for the design and the results.
-
 <details>
-<summary>Advanced settings and their defaults</summary>
+<summary>Advanced timing settings and their defaults</summary>
 
 | Setting | Default | Meaning |
 |---|---|---|
@@ -246,6 +239,10 @@ The defaults suit a battery that follows a new setpoint in about 10 s.
 
 ## Troubleshooting
 
+- **Card not found, and your dashboards are managed in YAML**
+  (`lovelace: resource_mode: yaml` in `configuration.yaml`): the integration
+  can't add its card to YAML resources. Add `/fuse_guard/fuse-guard-card.js`
+  as a `module` resource yourself.
 - **Labels missing or the card not found after an update:** reload the page
   with Ctrl+F5. In the HA app: Settings → Companion app → Troubleshooting →
   Reset frontend cache.
