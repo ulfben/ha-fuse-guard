@@ -2,7 +2,7 @@
 
 [![Validate](https://github.com/ulfben/ha-fuse-guard/actions/workflows/validate.yml/badge.svg?branch=main)](https://github.com/ulfben/ha-fuse-guard/actions/workflows/validate.yml)
 [![Release](https://img.shields.io/github/v/release/ulfben/ha-fuse-guard)](https://github.com/ulfben/ha-fuse-guard/releases/latest)
-[![HACS Custom](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz/docs/faq/custom_repositories/)
+[![HACS Default](https://img.shields.io/badge/HACS-Default-41BDF5.svg)](https://hacs.xyz/)
 
 A Home Assistant integration that keeps every phase of your main fuse below
 its rating by turning down one controllable load: a home battery's grid
@@ -60,9 +60,14 @@ the roadmap ([docs/DESIGN.md](https://github.com/ulfben/ha-fuse-guard/blob/main/
 
 ### HACS
 
-1. HACS → ⋮ → **Custom repositories** → add
-   `https://github.com/ulfben/ha-fuse-guard` as an **Integration**.
-2. Search for **Fuse Guard**, install it, and restart Home Assistant.
+Fuse Guard is in the HACS default list. Open HACS (called **Marketplace**
+from Home Assistant 2026.11), search for **Fuse Guard**, install it, and
+restart Home Assistant.
+
+If it doesn't show up in the search, add it as a custom repository instead:
+HACS → ⋮ → **Custom repositories** → add
+`https://github.com/ulfben/ha-fuse-guard` as an **Integration**, then search
+again.
 
 ### Manual
 
