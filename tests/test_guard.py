@@ -253,6 +253,8 @@ async def test_new_guard_with_target_entity_starts_at_full_target(hass: HomeAssi
 async def test_start_is_limited_by_headroom(hass: HomeAssistant, setup) -> None:
     """evcc starts charging at full power into a busy house: cap it at once."""
     _, calls = setup
+    events = []
+    hass.bus.async_listen(EVENT_ACTION, events.append)
     await set_mode(hass, "active")
     hass.states.async_set(COMMAND, "204")  # stop
     await hass.async_block_till_done()
@@ -262,6 +264,6 @@ async def test_start_is_limited_by_headroom(hass: HomeAssistant, setup) -> None:
     await hass.async_block_till_done()
     # 2.4 A of room x 690 W/A x 0.6 = 994 W
     assert calls[-1].data == {"entity_id": SETPOINT, "value": 900}
-    assert hass.states.get("sensor.house_status").attributes["reason"] == (
-        "START: limited by headroom"
-    )
+    # Later evaluations move on (cooldown); the write itself says why.
+    assert events[-1].data["write_w"] == 900
+    assert events[-1].data["message"].startswith("START: limited by headroom")
