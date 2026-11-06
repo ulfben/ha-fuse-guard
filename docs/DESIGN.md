@@ -158,6 +158,16 @@ Diagnostics download (`diagnostics.py`) dumps:
    0 W (or hold, per option); while inactive → keep the ceiling.
 2. **Inactive:** load not active → keep the ceiling, write nothing.
 3. **Zero request:** target ≤ 0 → ceiling 0.
+3a. **Start:** the load is active now but wasn't at the last evaluation (or
+   the guard just started, or inputs were invalid) → ceiling = min(target,
+   room_A × W_per_A × gain), where room_A = headroom + the load's own draw ÷
+   W_per_A (the start is seen through polled sensors, so the load may already
+   be drawing). The ceiling from the last run is ignored: the house may be much
+   busier now, and a scheduler starting the load writes its full power. A
+   start into an overload stamps the cut clock, so the next cut waits for a
+   reading taken after the load responded. Added in 2026.11.2 after the night of
+   2026-11-05, when evcc twice restarted charging at 7000 W into a busy house
+   and the phase reached 22 A for about 14 s before the first cut.
 4. **Throttle:** overload is real (≥ minimum overload) **and** the cut
    interval has passed **and** a phase reading taken at least the response time
    after the last cut is over the limit (or there is no previous cut) →

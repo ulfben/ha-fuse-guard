@@ -58,7 +58,8 @@ def inputs(**changes) -> Inputs:
 
 
 def state(**changes) -> GuardState:
-    base = GuardState(ceiling_w=6000, started_ts=T0, last_cut_ts=NOW - 3000)
+    # The load has been running: was_active=True. Starts have their own tests.
+    base = GuardState(ceiling_w=6000, started_ts=T0, last_cut_ts=NOW - 3000, was_active=True)
     return replace(base, **changes)
 
 
@@ -302,3 +303,96 @@ def test_stale_high_reading_alone_does_not_cut_again() -> None:
     d = run(inputs(phases=p, readback_w=5000), state(ceiling_w=5000, last_cut_ts=last_cut))
     assert d.reason == "HOLD: waiting for a reading after the last cut"
     assert d.ceiling_w == 5000
+
+
+# Starts: the load turns on (was_active False -> active True). The numbers are
+# from the reference installation on the night of 2026-11-05, with a 16 A limit
+# and a 7000 W target. evcc writes the full 7000 W when it starts charging.
+
+
+def start(**changes) -> Inputs:
+    # The active indicator has just changed, so the command isn't settled.
+    values = {"target_w": 7000, "readback_w": 7000, "actual_w": 0, "command_changed_ts": NOW}
+    return inputs(**{**values, **changes})
+
+
+def test_start_is_limited_by_headroom() -> None:
+    # 23:45: the house was at 14.14 A when the charge started. 1.86 A of room
+    # x 690 W/A x 0.6 = 770 W, written at once instead of after an overload.
+    d = run(start(phases=phases(l2=14.14)), state(ceiling_w=7000, was_active=False), threshold_a=16)
+    assert d.status is Status.HOLDING
+    assert d.reason == "START: limited by headroom"
+    assert d.ceiling_w == 700
+    assert d.write_w == 700
+    assert d.state.was_active is True
+    assert d.state.last_cut_ts == NOW - 3000  # not a cut
+
+
+def test_start_ignores_the_ceiling_from_the_last_run() -> None:
+    # A low ceiling left over from an earlier cut doesn't hold back a quiet house.
+    quiet = phases(l1=1.79, l2=1.79, l3=1.79)
+    d = run(start(phases=quiet), state(ceiling_w=2400, was_active=False), threshold_a=16)
+    assert d.ceiling_w == 5800  # 14.21 A x 690 x 0.6 = 5883 W
+    assert d.write_w == 5800
+
+
+def test_start_with_room_for_the_target_runs_at_target() -> None:
+    d = run(
+        inputs(target_w=3000, readback_w=3000, actual_w=0, phases=phases(l3=5)),
+        state(ceiling_w=7000, was_active=False),
+        threshold_a=16,
+    )
+    assert d.ceiling_w == 3000
+    assert d.write_w is None
+    assert d.reason != "START: limited by headroom"
+
+
+def test_start_counts_the_loads_own_draw_as_room() -> None:
+    # 00:05: the battery was already drawing 7000 W (10.1 A) when HA saw the
+    # start, and the phase read 21.8 A. The house alone was at 11.7 A:
+    # 4.3 A of room x 690 x 0.6 = 1800 W. One cut, sized from the house.
+    d = run(
+        start(actual_w=7000, phases=phases(l3=21.8)),
+        state(ceiling_w=7000, was_active=False),
+        threshold_a=16,
+    )
+    assert d.status is Status.LIMITING
+    assert d.reason == "START: limited by headroom"
+    assert d.ceiling_w == 1700
+    assert d.write_w == 1700
+    assert d.state.last_cut_ts == NOW  # the next cut waits for a fresh reading
+
+
+def test_start_into_overload_without_actual_sensor_pauses() -> None:
+    d = run(
+        start(actual_w=None, phases=phases(l3=21.8)),
+        state(ceiling_w=7000, was_active=False),
+        threshold_a=16,
+        has_actual=False,
+    )
+    assert d.status is Status.PAUSED
+    assert d.write_w == 0
+
+
+def test_start_counts_only_once() -> None:
+    first = run(
+        start(phases=phases(l2=14.14)), state(ceiling_w=7000, was_active=False), threshold_a=16
+    )
+    # Ten seconds later the readback still shows evcc's 7000 W; the guard trusts
+    # its own pending write and doesn't start again.
+    later = replace(start(phases=phases(l2=14.0)), now=NOW + 10)
+    d = run(later, first.state, threshold_a=16)
+    assert d.reason != "START: limited by headroom"
+    assert d.ceiling_w == 700
+    assert d.write_w is None
+
+
+def test_stopping_rearms_the_start() -> None:
+    d = run(inputs(active=False), state(was_active=True))
+    assert d.state.was_active is False
+
+
+def test_fail_safe_rearms_the_start() -> None:
+    d = run(inputs(readback_w=None), state(was_active=True))
+    assert d.status is Status.FAIL_SAFE
+    assert d.state.was_active is False

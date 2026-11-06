@@ -82,6 +82,9 @@ class GuardState:
     last_recovery_ts: float | None = None
     last_write_w: float | None = None
     last_write_ts: float | None = None
+    # Whether the load was active at the last evaluation that knew. False after a
+    # restart, so the first active evaluation always counts as a start.
+    was_active: bool = False
 
 
 @dataclass(frozen=True)
@@ -143,6 +146,18 @@ def decide(settings: Settings, inputs: Inputs, state: GuardState) -> Decision:
     over_is_real = grid_valid and settings_valid and over_a >= s.min_over_a
     headroom_a = s.threshold_a - current_max
 
+    # A load that just turned on starts from what the headroom allows, not from
+    # the ceiling it had when it last ran: the house may be much busier now, and
+    # a scheduler starting the load writes its full power straight away. The
+    # start is seen through polled sensors, so the load may already be drawing;
+    # its own draw counts as room, or the start would be sized too low.
+    starting = inputs_valid and active and not state.was_active
+    if starting:
+        own_a = max(0.0, i.actual_w) / s.watts_per_amp if i.actual_w is not None else 0.0
+        room_a = max(0.0, headroom_a + own_a)
+        start_w = _floor_step(room_a * s.watts_per_amp * s.recovery_gain, s.step_w)
+        safe_limit_w = min(target_w, start_w)
+
     # The cut clock. Recovery also waits a cooldown after startup, but a cut is
     # allowed straight away.
     clock_valid = state.last_cut_ts is not None and 0 < state.last_cut_ts <= now
@@ -193,6 +208,10 @@ def decide(settings: Settings, inputs: Inputs, state: GuardState) -> Decision:
         raw = safe_limit_w
     elif target_w <= 0:
         raw = 0.0
+    elif starting:
+        # Already sized from the headroom, overload included; the readback may
+        # still show what the load ran at last time.
+        raw = safe_limit_w
     elif cutting:
         raw = baseline_w - drop_w
     elif recovery_allowed:
@@ -214,6 +233,9 @@ def decide(settings: Settings, inputs: Inputs, state: GuardState) -> Decision:
         status, reason = Status.INACTIVE, "INACTIVE: load not active"
     elif target_w <= 0:
         status, reason = Status.ZERO_REQUEST, "ZERO REQUEST"
+    elif starting and ceiling_w < target_w:
+        status = Status.LIMITING if over_is_real else Status.HOLDING
+        reason = "START: limited by headroom"
     elif over_is_real and over_sample_fresh:
         status, reason = Status.LIMITING, "THROTTLE"
     elif over_is_real:
@@ -231,7 +253,9 @@ def decide(settings: Settings, inputs: Inputs, state: GuardState) -> Decision:
     if ceiling_w == 0 and status in (Status.LIMITING, Status.HOLDING) and active:
         status = Status.PAUSED
 
-    stamp = (not inputs_valid and active) or (active and cutting)
+    # A start into an overload is a cut too: the next cut waits for a reading
+    # taken after the load responded.
+    stamp = (not inputs_valid and active) or (active and cutting) or (starting and over_is_real)
     new_state = replace(
         state,
         ceiling_w=ceiling_w,
@@ -243,5 +267,6 @@ def decide(settings: Settings, inputs: Inputs, state: GuardState) -> Decision:
         ),
         last_write_w=write_w if write_w is not None else state.last_write_w,
         last_write_ts=now if write_w is not None else state.last_write_ts,
+        was_active=inputs_valid and active,
     )
     return Decision(status, reason, ceiling_w, final_w, write_w, reported_w, new_state)

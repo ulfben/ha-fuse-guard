@@ -221,7 +221,7 @@
           "min_over_a": "How far over the threshold counts as a real overload.",
           "base_drop_w": "Each cut is this plus the overload converted to watts.",
           "response_s": "A further cut needs a phase reading taken at least this long after the previous cut.",
-          "recovery_gain": "Share of the measured headroom given back per recovery step.",
+          "recovery_gain": "Share of the measured headroom given back per recovery step, and allowed when the load turns on.",
           "on_missing_data": "Only applies while the load is active."
         }
       }

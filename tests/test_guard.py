@@ -74,12 +74,14 @@ OPTIONS = {
 }
 
 
-def set_phases(hass: HomeAssistant, l1: float = 8, l2: float = 8, l3: float = 8) -> None:
+def set_phases(
+    hass: HomeAssistant, l1: float = 8, l2: float = 8, l3: float = 8, other_l3: float = 5
+) -> None:
     for entity_id, value in (
         ("sensor.meter_l1", l1),
         ("sensor.meter_l2", l2),
         ("sensor.meter_l3", l3),
-        ("sensor.other_l3", 5),
+        ("sensor.other_l3", other_l3),
     ):
         hass.states.async_set(
             entity_id, str(value), {"unit_of_measurement": "A", "device_class": "current"}
@@ -88,8 +90,13 @@ def set_phases(hass: HomeAssistant, l1: float = 8, l2: float = 8, l3: float = 8)
 
 @pytest.fixture
 async def setup(hass: HomeAssistant):
-    """A guard over a 6000 W battery setpoint, plus a recorder of number writes."""
-    set_phases(hass)
+    """A guard over a 6000 W battery setpoint, plus a recorder of number writes.
+
+    The load is charging when the guard starts, which counts as a start: it is
+    limited by the headroom. A nearly idle house leaves room for the full 6000 W,
+    and then the house load comes on.
+    """
+    set_phases(hass, 0.5, 0.5, 0.5, other_l3=0.5)
     hass.states.async_set(SETPOINT, "6000", {"unit_of_measurement": "W", "max": 10000})
     hass.states.async_set(EMS_MODE, "2")
     hass.states.async_set(COMMAND, "170")
@@ -98,6 +105,8 @@ async def setup(hass: HomeAssistant):
     )
     entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    set_phases(hass)
     await hass.async_block_till_done()
     # After setup: loading our own number platform registers the real service.
     calls = async_mock_service(hass, "number", "set_value")
@@ -239,3 +248,20 @@ async def test_new_guard_with_target_entity_starts_at_full_target(hass: HomeAssi
     assert float(hass.states.get("sensor.house_ceiling").state) == 6000
     assert hass.states.get("binary_sensor.house_limiting").state == "off"
     assert hass.states.get("number.house_target_power") is None
+
+
+async def test_start_is_limited_by_headroom(hass: HomeAssistant, setup) -> None:
+    """evcc starts charging at full power into a busy house: cap it at once."""
+    _, calls = setup
+    await set_mode(hass, "active")
+    hass.states.async_set(COMMAND, "204")  # stop
+    await hass.async_block_till_done()
+    set_phases(hass, l3=13)
+    hass.states.async_set(SETPOINT, "6000", {"unit_of_measurement": "W", "max": 10000})
+    hass.states.async_set(COMMAND, "170")  # evcc starts again
+    await hass.async_block_till_done()
+    # 2.4 A of room x 690 W/A x 0.6 = 994 W
+    assert calls[-1].data == {"entity_id": SETPOINT, "value": 900}
+    assert hass.states.get("sensor.house_status").attributes["reason"] == (
+        "START: limited by headroom"
+    )

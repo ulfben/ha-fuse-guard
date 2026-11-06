@@ -140,6 +140,7 @@ def replay(rows: list[Row], settings: Settings = REFERENCE, tick_s: float = 10) 
         ceiling_w=_number(latest[CEILING].state) or settings.max_w,
         started_ts=start - 3600,
         last_cut_ts=start - 3600,
+        was_active=latest[EMS_MODE].state == "2" and latest[COMMAND].state == "170",
     )
     steps: list[Step] = []
 

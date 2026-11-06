@@ -205,19 +205,25 @@ show_log: true
 
 ## How it decides
 
-Every few seconds, and whenever a meter reports:
+Every few seconds, and whenever a meter or a condition entity reports:
 
-1. **An overload** (the worst phase at least 0.2 A over the limit) cuts the
+1. **When the load turns on** (your conditions start to hold), the setpoint
+   is limited to 60 % of the measured headroom straight away, however much
+   your scheduler asked for. A scheduler that starts the load at full power
+   into a busy house is caught on the first check, usually before the meters
+   show an overload. If the load is already drawing by then, its own draw
+   counts as room.
+2. **An overload** (the worst phase at least 0.2 A over the limit) cuts the
    setpoint by 310 W plus the overload converted to watts
    (230 V × 3 phases = 690 W per amp for a three-phase load).
-2. **After a cut** it waits for a meter reading taken at least 8 s later
+3. **After a cut** it waits for a meter reading taken at least 8 s later
    before deciding whether to cut again, so it doesn't react to its own
    past.
-3. **After a cut, or when the guard starts up,** it waits 60 s before
+4. **After a cut, or when the guard starts up,** it waits 60 s before
    giving any power back.
-4. **Then it recovers in steps** of 60 % of the measured headroom, at most
+5. **Then it recovers in steps** of 60 % of the measured headroom, at most
    once a minute, and only while the load is following its setpoint.
-5. **Missing or stale data** while the load is active pauses the load
+6. **Missing or stale data** while the load is active pauses the load
    (or holds the setpoint, if you choose that).
 
 <details>
@@ -233,7 +239,7 @@ Every few seconds, and whenever a meter reports:
 | Cooldown after a cut | 60 s | No recovery for this long after a cut or a start |
 | Settling time | 30 s | The setpoint must have been unchanged this long before a recovery step |
 | Time between recovery steps | 60 s | |
-| Recovery gain | 0.6 | Share of the measured headroom given back per step |
+| Recovery gain | 0.6 | Share of the measured headroom given back per step, and allowed when the load turns on |
 | Step size | 100 W | Setpoint granularity |
 | Startup hold | 60 s | After a start, the guard waits this long before acting on its readings |
 | On missing data | Pause the load | Or hold the current setpoint |
