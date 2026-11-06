@@ -233,15 +233,20 @@ def decide(settings: Settings, inputs: Inputs, state: GuardState) -> Decision:
         status, reason = Status.INACTIVE, "INACTIVE: load not active"
     elif target_w <= 0:
         status, reason = Status.ZERO_REQUEST, "ZERO REQUEST"
+    # The status names a phase, not a single evaluation: a cut lasts one
+    # evaluation, but the load stays limited through the wait for a fresh
+    # reading and the cooldown, then recovers over several steps. `reason` has
+    # the detail of the evaluation itself.
     elif starting and ceiling_w < target_w:
-        status = Status.LIMITING if over_is_real else Status.HOLDING
-        reason = "START: limited by headroom"
+        status, reason = Status.LIMITING, "START: limited by headroom"
     elif over_is_real and over_sample_fresh:
         status, reason = Status.LIMITING, "THROTTLE"
     elif over_is_real:
-        status, reason = Status.HOLDING, "HOLD: waiting for a reading after the last cut"
-    elif in_cooldown:
-        status, reason = Status.HOLDING, "HOLD: cooldown"
+        status, reason = Status.LIMITING, "HOLD: waiting for a reading after the last cut"
+    elif in_cooldown and baseline_w < target_w:
+        after_cut = clock_valid and event_age < s.cooldown_s
+        status = Status.LIMITING if after_cut else Status.HOLDING
+        reason = "HOLD: cooldown"
     elif baseline_w >= target_w:
         status, reason = Status.FULL_RATE, "FULL RATE"
     elif not tracking:
@@ -249,7 +254,9 @@ def decide(settings: Settings, inputs: Inputs, state: GuardState) -> Decision:
     elif recovery_allowed:
         status, reason = Status.RECOVERING, "RECOVER"
     else:
-        status, reason = Status.HOLDING, "HOLD"
+        # Between recovery steps, while there is room to give back.
+        status = Status.RECOVERING if headroom_a > 0 else Status.HOLDING
+        reason = "HOLD"
     if ceiling_w == 0 and status in (Status.LIMITING, Status.HOLDING) and active:
         status = Status.PAUSED
 

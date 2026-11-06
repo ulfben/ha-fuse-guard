@@ -177,7 +177,7 @@ and what each one does, are listed under [How it decides](#how-it-decides).
 | Entity | What it shows |
 |---|---|
 | Mode | Off, Shadow (decide and log, never write) or Active |
-| Status | What the guard is doing: full rate, limiting, recovering, holding, load not active, fail safe… The `summary` attribute is a plain-language line for dashboards |
+| Status | What the guard is doing: full rate; limiting (from a cut, or a start limited by headroom, through its cooldown); recovering (giving power back, including the waits between steps); holding (below target for another reason, such as a load not following its setpoint); paused, load not active, fail safe… The `reason` attribute says what the last check did, and `summary` is a plain-language line for dashboards |
 | Ceiling | The highest setpoint the guard currently allows (W) |
 | L1/L2/L3 current | The highest fresh reading per phase; attributes name the source meter and how far the meters disagree |
 | Highest phase current, Headroom | The worst phase, and how far below the limit it is |
@@ -274,6 +274,13 @@ uv run pytest
 The decision logic (`controller.py`) and the meter checks (`meters.py`) are
 plain Python with no Home Assistant imports, so they can be tested directly.
 `tests/test_replay.py` replays recorded overloads through the controller.
+
+The Home Assistant test plugin doesn't load on Windows (it needs `fcntl`). There,
+run the plain-Python tests without it, and leave the rest to CI or WSL:
+
+```bash
+uv run pytest --noconftest -p no:homeassistant tests/test_controller.py tests/test_replay.py tests/test_meters.py tests/test_sources.py
+```
 
 ## License
 

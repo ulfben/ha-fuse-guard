@@ -92,7 +92,7 @@ def test_small_overload_is_ignored() -> None:
 
 def test_no_second_cut_before_cut_interval() -> None:
     d = run(inputs(phases=phases(l3=16.4)), state(ceiling_w=5000, last_cut_ts=NOW - 5))
-    assert d.status is Status.HOLDING
+    assert d.status is Status.LIMITING  # still overloaded: the load stays limited
     assert d.ceiling_w == 5000
 
 
@@ -130,6 +130,7 @@ def test_cooldown_holds_after_cut() -> None:
         inputs(readback_w=5000, actual_w=5000),
         state(ceiling_w=5000, last_cut_ts=NOW - 30),
     )
+    assert d.status is Status.LIMITING  # the cut's phase lasts through its cooldown
     assert d.reason == "HOLD: cooldown"
     assert d.write_w is None
 
@@ -161,6 +162,7 @@ def test_recovery_waits_for_recovery_interval() -> None:
         inputs(phases=phases(l3=10.4), readback_w=3000, actual_w=3000),
         state(ceiling_w=3000, last_cut_ts=NOW - 120, last_recovery_ts=NOW - 30),
     )
+    assert d.status is Status.RECOVERING  # between steps, still on its way back
     assert d.reason == "HOLD"
     assert d.ceiling_w == 3000
 
@@ -261,6 +263,7 @@ def test_no_recovery_during_startup_cooldown() -> None:
         state(ceiling_w=3000, last_cut_ts=None, started_ts=NOW - 30),
         startup_hold_s=0,
     )
+    assert d.status is Status.HOLDING  # no cut: not limiting
     assert d.reason == "HOLD: cooldown"
     assert d.state.last_cut_ts is None
 
@@ -320,7 +323,7 @@ def test_start_is_limited_by_headroom() -> None:
     # 23:45: the house was at 14.14 A when the charge started. 1.86 A of room
     # x 690 W/A x 0.6 = 770 W, written at once instead of after an overload.
     d = run(start(phases=phases(l2=14.14)), state(ceiling_w=7000, was_active=False), threshold_a=16)
-    assert d.status is Status.HOLDING
+    assert d.status is Status.LIMITING
     assert d.reason == "START: limited by headroom"
     assert d.ceiling_w == 700
     assert d.write_w == 700
@@ -396,3 +399,36 @@ def test_fail_safe_rearms_the_start() -> None:
     d = run(inputs(readback_w=None), state(was_active=True))
     assert d.status is Status.FAIL_SAFE
     assert d.state.was_active is False
+
+
+# The status names a phase that lasts many evaluations, so the recorder and
+# automations see it (a cut alone lasts one evaluation).
+
+
+def test_no_room_between_steps_is_holding() -> None:
+    d = run(
+        inputs(phases=phases(l3=15.4), readback_w=3000, actual_w=3000),
+        state(ceiling_w=3000, last_cut_ts=NOW - 120, last_recovery_ts=NOW - 30),
+    )
+    assert d.status is Status.HOLDING
+    assert d.reason == "HOLD"
+
+
+def test_cooldown_at_full_rate_is_full_rate() -> None:
+    # Just started and already at the target: nothing is held back.
+    d = run(st=state(last_cut_ts=None, started_ts=NOW - 30), startup_hold_s=0)
+    assert d.status is Status.FULL_RATE
+
+
+def test_a_throttle_reads_limiting_from_cut_to_recovery() -> None:
+    """Cut, wait for a fresh reading, cooldown, then recover: one phase each."""
+    st = state()
+    seen = []
+    # 0 s: overload -> cut. 5 s: still the old reading. 40 s: cooled down? No.
+    # 120 s: room again -> recover.
+    for dt, l3 in ((0, 16.4), (5, 16.4), (40, 12.0), (120, 12.0)):
+        i = replace(inputs(phases=phases(l3=l3, ts=NOW + dt)), now=NOW + dt)
+        d = run(i, st)
+        st = d.state
+        seen.append(d.status)
+    assert seen == [Status.LIMITING, Status.LIMITING, Status.LIMITING, Status.RECOVERING]

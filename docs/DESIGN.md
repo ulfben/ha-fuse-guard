@@ -108,7 +108,7 @@ All entities belong to one device per entry ("Fuse Guard – <name>").
 | Entity | Type | State / purpose |
 |---|---|---|
 | Mode | `select` | `off` / `shadow` / `active`. Shadow computes and logs everything but never writes. Default after setup: **shadow** |
-| Status | `sensor` (enum) | `off`, `startup`, `fail_safe`, `inactive`, `zero_request`, `paused`, `limiting`, `holding`, `recovering`, `full_rate`. Attributes: `reason` (as today's status text), `summary` (plain-language line for dashboards), `ceiling_w`, `requested_w`, `readback_w` |
+| Status | `sensor` (enum) | `off`, `startup`, `fail_safe`, `inactive`, `zero_request`, `paused`, `limiting`, `holding`, `recovering`, `full_rate`. The status names a phase that lasts many evaluations: `limiting` from a cut (or a start limited by headroom) through the wait for a fresh reading and the cooldown, `recovering` while giving power back including the waits between steps, `holding` below target for any other reason (load not following, no room, startup cooldown). Attributes: `reason` (as today's status text), `summary` (plain-language line for dashboards), `ceiling_w`, `requested_w`, `readback_w` |
 | Ceiling | `sensor` W | Current safe limit (restored across restarts) |
 | Phase L1/L2/L3 current | `sensor` A | Highest fresh reading. Attributes: `source_entity`, `sample_timestamp`, `fresh_sources`, `spread` |
 | Highest phase current | `sensor` A | Max of the phases; this replaces `sensor.main_fuse_current_max` |
