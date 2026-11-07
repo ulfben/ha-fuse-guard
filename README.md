@@ -183,6 +183,7 @@ and what each one does, are listed under [How it decides](#how-it-decides).
 | Highest phase current, Headroom | The worst phase, and how far below the limit it is |
 | Limiting | On while the guard holds the load below its target |
 | Target power | Only when the target is a fixed value |
+| Cuts, Limited starts, Time over limit, Peak phase current (24 h) | What happened over the last 24 hours, rolling, so a night of charging isn't split at midnight. Cuts include starts into an overload; the peak has the time it happened as an attribute. Kept across restarts |
 
 Every write shows in the logbook ("set number.… to 5000 W: THROTTLE; …") and
 fires a `fuse_guard_action` event you can use in automations. In Shadow mode
@@ -194,8 +195,9 @@ the logbook says "would set" instead.
 
 Edit a dashboard → **Add card** → **Fuse Guard**. It shows each phase against
 the fuse (the marker is the guard's limit), the load against its target, the
-status line, a mode switch (it asks before going Active) and, optionally, the
-last decisions.
+status line, a mode switch (it asks before going Active), a line on the last
+24 hours ("Last 24 h: 1 cut · 11 s over the limit · peak 19.2 A at 00:48") and,
+optionally, the last decisions.
 
 ```yaml
 type: custom:fuse-guard-card
@@ -280,7 +282,7 @@ The Home Assistant test plugin doesn't load on Windows (it needs `fcntl`). There
 run the plain-Python tests without it, and leave the rest to CI or WSL:
 
 ```bash
-uv run pytest --noconftest -p no:homeassistant tests/test_controller.py tests/test_replay.py tests/test_meters.py tests/test_sources.py
+uv run pytest --noconftest -p no:homeassistant tests/test_controller.py tests/test_replay.py tests/test_meters.py tests/test_sources.py tests/test_stats.py
 ```
 
 ## License

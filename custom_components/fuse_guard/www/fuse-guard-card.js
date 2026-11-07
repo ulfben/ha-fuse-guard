@@ -39,6 +39,13 @@ const escapeHtml = (value) =>
 // Format a time the way the user's HA profile asks: time_format is
 // "language" (the language's default), "system" (the browser's), "12" or "24",
 // and time_zone "server" shows the server's clock instead of the browser's.
+function formatDuration(seconds) {
+  const s = Math.round(Number(seconds) || 0);
+  if (s < 60) return `${s} s`;
+  const m = Math.floor(s / 60);
+  return s % 60 ? `${m} min ${s % 60} s` : `${m} min`;
+}
+
 function formatTime(hass, iso) {
   const locale = hass.locale || {};
   const options = { hour: "2-digit", minute: "2-digit", second: "2-digit" };
@@ -174,6 +181,20 @@ class FuseGuardCard extends HTMLElement {
             .join("")}</ul>`
         : "";
 
+    // What the guard did over the last 24 hours: "how did last night go?"
+    const day = a.last_24h;
+    const dayLine = day
+      ? `<div class="legend day">Last 24 h: ${day.cuts} ${day.cuts === 1 ? "cut" : "cuts"} · ${formatDuration(
+          day.over_s,
+        )} over the limit${
+          day.peak_a != null && day.peak_ts
+            ? ` · peak ${Number(day.peak_a).toFixed(1)} A at ${escapeHtml(
+                formatTime(hass, new Date(day.peak_ts * 1000).toISOString()),
+              )}`
+            : ""
+        }</div>`
+      : "";
+
     const modes = ids.mode
       ? `<div class="modes" role="group" aria-label="Mode">${MODES.map(
           ([value, label]) =>
@@ -193,6 +214,7 @@ class FuseGuardCard extends HTMLElement {
         </button>
         <div class="phases">${phases}${loadRow}</div>
         <div class="legend">Marker: guard limit ${threshold.toFixed(1)} A · bar end: ${fuse} A fuse</div>
+        ${dayLine}
         ${log}
       </ha-card>${STYLE}`;
 

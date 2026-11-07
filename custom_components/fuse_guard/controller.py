@@ -108,6 +108,11 @@ class Decision:
         )
 
 
+# Reasons other modules recognise.
+THROTTLE_REASON = "THROTTLE"
+START_REASON = "START: limited by headroom"
+
+
 def _floor_step(value: float, step: float) -> float:
     return math.floor(value / step) * step
 
@@ -238,9 +243,9 @@ def decide(settings: Settings, inputs: Inputs, state: GuardState) -> Decision:
     # reading and the cooldown, then recovers over several steps. `reason` has
     # the detail of the evaluation itself.
     elif starting and ceiling_w < target_w:
-        status, reason = Status.LIMITING, "START: limited by headroom"
+        status, reason = Status.LIMITING, START_REASON
     elif over_is_real and over_sample_fresh:
-        status, reason = Status.LIMITING, "THROTTLE"
+        status, reason = Status.LIMITING, THROTTLE_REASON
     elif over_is_real:
         status, reason = Status.LIMITING, "HOLD: waiting for a reading after the last cut"
     elif in_cooldown and baseline_w < target_w:

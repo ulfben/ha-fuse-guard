@@ -64,8 +64,18 @@ from .const import (
     PHASE_KEYS,
     SIGN_NEGATIVE,
 )
-from .controller import Decision, GuardState, Inputs, Settings, Status, decide
+from .controller import (
+    START_REASON,
+    THROTTLE_REASON,
+    Decision,
+    GuardState,
+    Inputs,
+    Settings,
+    Status,
+    decide,
+)
 from .sources import PhaseSample, Reading, select_phase
+from .stats import RollingStats, Summary
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -114,6 +124,8 @@ class FuseGuard:
         self.decision: Decision | None = None
         self.phases: dict[str, PhaseSample] = {}
         self.history: deque[dict[str, Any]] = deque(maxlen=HISTORY_LENGTH)
+        self.stats = RollingStats()
+        self._stats_saved_minute: float | None = None
 
         self._store: Store[dict[str, Any]] = Store(
             hass, STORAGE_VERSION, f"{DOMAIN}.{entry.entry_id}"
@@ -128,11 +140,13 @@ class FuseGuard:
 
     # Lifecycle
 
-    async def async_start(self) -> None:
-        """Restore persisted state and start listening."""
+    async def async_load(self) -> None:
+        """Restore persisted state. Runs before the entities are added, so the
+        Mode select reports the saved mode from its first state, not Shadow."""
         await self._compile_conditions()
         stored = await self._store.async_load() or {}
         self.mode = stored.get("mode", MODE_SHADOW)
+        self.stats = RollingStats(stored.get("stats"))
         if self.fixed_target:
             self.target_w = float(stored.get("target_w", self.target_w))
         now = dt_util.utcnow().timestamp()
@@ -148,6 +162,9 @@ class FuseGuard:
             last_cut_ts=stored.get("last_cut_ts"),
             last_recovery_ts=stored.get("last_recovery_ts"),
         )
+
+    async def async_start(self) -> None:
+        """Start listening and decide once."""
         self._unsubscribe.append(
             async_track_state_change_event(self.hass, self._watched_entities(), self._on_change)
         )
@@ -204,6 +221,7 @@ class FuseGuard:
             "ceiling_w": self.state.ceiling_w,
             "last_cut_ts": self.state.last_cut_ts,
             "last_recovery_ts": self.state.last_recovery_ts,
+            "stats": self.stats.as_list(),
         }
 
     # Entities
@@ -358,7 +376,9 @@ class FuseGuard:
             self.decision = None
             return
 
-        decision = decide(self._settings(), inputs, self.state)
+        settings = self._settings()
+        decision = decide(settings, inputs, self.state)
+        self._record_stats(now, settings, decision)
         previous = self.decision
         self.decision = decision
         if self.mode == MODE_SHADOW and decision.write_w is not None:
@@ -393,6 +413,19 @@ class FuseGuard:
         if changed or (self.mode == MODE_ACTIVE and decision.write_w is not None):
             self._record(decision)
         if previous is None or previous.ceiling_w != decision.ceiling_w:
+            self._store.async_delay_save(self._stored, 5)
+
+    def _record_stats(self, now: float, settings: Settings, decision: Decision) -> None:
+        started = decision.reason == START_REASON
+        cut = decision.state.last_cut_ts != self.state.last_cut_ts and (
+            started or decision.reason == THROTTLE_REASON
+        )
+        self.stats.record(now, self.highest_current_a, settings.threshold_a, cut, started)
+        # Save once a minute: a delayed save that is pushed back on every
+        # evaluation would never run.
+        minute = now - now % 60
+        if minute != self._stats_saved_minute:
+            self._stats_saved_minute = minute
             self._store.async_delay_save(self._stored, 5)
 
     def _record(self, decision: Decision) -> None:
@@ -430,8 +463,10 @@ class FuseGuard:
 
     @property
     def status(self) -> Status:
-        if self.mode == MODE_OFF or self.decision is None:
+        if self.mode == MODE_OFF:
             return Status.OFF
+        if self.decision is None:
+            return Status.STARTUP  # entities exist before the first decision
         return self.decision.status
 
     @property
@@ -479,8 +514,13 @@ class FuseGuard:
             return None
         return round(self.options[CONF_FUSE_A] - self.options[CONF_MARGIN_A] - highest, 2)
 
+    @property
+    def last_24h(self) -> Summary:
+        return self.stats.summary(dt_util.utcnow().timestamp())
+
     def diagnostics(self) -> dict[str, Any]:
         return {
+            "last_24h": asdict(self.last_24h),
             "mode": self.mode,
             "target_w": self.effective_target_w,
             "state": asdict(self.state),

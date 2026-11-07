@@ -36,6 +36,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: FuseGuardConfigEntry) ->
     await _async_register_card(hass)
     guard = FuseGuard(hass, entry)
     entry.runtime_data = guard
+    await guard.async_load()
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     await guard.async_start()
     entry.async_on_unload(entry.add_update_listener(_async_reload_entry))

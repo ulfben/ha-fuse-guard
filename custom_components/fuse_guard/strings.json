@@ -272,6 +272,18 @@
       },
       "current_l3": {
         "name": "L3 current"
+      },
+      "cuts_24h": {
+        "name": "Cuts (24 h)"
+      },
+      "limited_starts_24h": {
+        "name": "Limited starts (24 h)"
+      },
+      "over_limit_24h": {
+        "name": "Time over limit (24 h)"
+      },
+      "peak_current_24h": {
+        "name": "Peak phase current (24 h)"
       }
     },
     "binary_sensor": {

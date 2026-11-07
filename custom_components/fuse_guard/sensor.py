@@ -1,7 +1,9 @@
-"""Sensors: status, ceiling, phase currents, headroom."""
+"""Sensors: status, ceiling, phase currents, headroom, the last 24 hours."""
 
 from __future__ import annotations
 
+from dataclasses import asdict
+from datetime import UTC, datetime
 from typing import Any
 
 from homeassistant.components.sensor import (
@@ -9,7 +11,7 @@ from homeassistant.components.sensor import (
     SensorEntity,
     SensorStateClass,
 )
-from homeassistant.const import UnitOfElectricCurrent, UnitOfPower
+from homeassistant.const import UnitOfElectricCurrent, UnitOfPower, UnitOfTime
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
@@ -31,6 +33,12 @@ async def async_setup_entry(
         HeadroomSensor(guard),
     ]
     entities += [PhaseCurrentSensor(guard, key) for key in guard.phase_keys]
+    entities += [
+        CutsSensor(guard),
+        LimitedStartsSensor(guard),
+        TimeOverLimitSensor(guard),
+        PeakCurrentSensor(guard),
+    ]
     async_add_entities(entities)
 
 
@@ -38,7 +46,7 @@ class StatusSensor(FuseGuardEntity, SensorEntity):
     _attr_device_class = SensorDeviceClass.ENUM
     _attr_options = [status.value for status in Status]
     # For the card only; the logbook already keeps the history.
-    _unrecorded_attributes = frozenset({"recent", "fuse_a", "threshold_a"})
+    _unrecorded_attributes = frozenset({"recent", "fuse_a", "threshold_a", "last_24h"})
 
     def __init__(self, guard: FuseGuard) -> None:
         super().__init__(guard, "status")
@@ -62,6 +70,7 @@ class StatusSensor(FuseGuardEntity, SensorEntity):
             "fuse_a": self.guard.options[CONF_FUSE_A],
             "threshold_a": self.guard.options[CONF_FUSE_A] - self.guard.options[CONF_MARGIN_A],
             "recent": list(self.guard.history)[-5:][::-1],
+            "last_24h": asdict(self.guard.last_24h),
         }
 
 
@@ -138,3 +147,59 @@ class HeadroomSensor(_CurrentSensor):
     @property
     def available(self) -> bool:
         return self.native_value is not None
+
+
+# The last 24 hours, rolling: a night of charging spans midnight, so a count
+# that reset at midnight would split it. Measurements, not totals: they go down
+# as old minutes leave the window.
+
+
+class CutsSensor(FuseGuardEntity, SensorEntity):
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_icon = "mdi:content-cut"
+
+    def __init__(self, guard: FuseGuard) -> None:
+        super().__init__(guard, "cuts_24h")
+
+    @property
+    def native_value(self) -> int:
+        return self.guard.last_24h.cuts
+
+
+class LimitedStartsSensor(FuseGuardEntity, SensorEntity):
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_icon = "mdi:play-speed"
+
+    def __init__(self, guard: FuseGuard) -> None:
+        super().__init__(guard, "limited_starts_24h")
+
+    @property
+    def native_value(self) -> int:
+        return self.guard.last_24h.limited_starts
+
+
+class TimeOverLimitSensor(FuseGuardEntity, SensorEntity):
+    _attr_device_class = SensorDeviceClass.DURATION
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_native_unit_of_measurement = UnitOfTime.SECONDS
+
+    def __init__(self, guard: FuseGuard) -> None:
+        super().__init__(guard, "over_limit_24h")
+
+    @property
+    def native_value(self) -> float:
+        return self.guard.last_24h.over_s
+
+
+class PeakCurrentSensor(_CurrentSensor):
+    def __init__(self, guard: FuseGuard) -> None:
+        super().__init__(guard, "peak_current_24h")
+
+    @property
+    def native_value(self) -> float | None:
+        return self.guard.last_24h.peak_a
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        ts = self.guard.last_24h.peak_ts
+        return {"time": datetime.fromtimestamp(ts, UTC).isoformat() if ts else None}

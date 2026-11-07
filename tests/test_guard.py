@@ -292,3 +292,37 @@ async def test_a_burst_of_readings_is_decided_as_one(
     await hass.async_block_till_done()
     # 19.1 - 15.4 = 3.7 A over: 310 + 3.7 x 690 = 2863 W off 6000 W
     assert [c.data["value"] for c in calls] == [3100]
+
+
+def _entity_id(hass: HomeAssistant, entry, key: str) -> str:
+    return er.async_get(hass).async_get_entity_id("sensor", DOMAIN, f"{entry.entry_id}_{key}")
+
+
+async def test_last_24h_sensors_count_a_cut(hass: HomeAssistant, setup) -> None:
+    entry, _ = setup
+    set_phases(hass, l3=16.4)
+    await hass.async_block_till_done()
+    assert hass.states.get(_entity_id(hass, entry, "cuts_24h")).state == "1"
+    assert hass.states.get(_entity_id(hass, entry, "limited_starts_24h")).state == "0"
+    peak = hass.states.get(_entity_id(hass, entry, "peak_current_24h"))
+    assert float(peak.state) == 16.4
+    assert peak.attributes["time"] is not None
+    assert hass.states.get("sensor.house_status").attributes["last_24h"]["cuts"] == 1
+
+
+async def test_restart_reports_the_saved_mode_from_the_start(hass: HomeAssistant, setup) -> None:
+    """The Mode select used to report Shadow, then the saved mode, on every restart."""
+    entry, _ = setup
+    await set_mode(hass, "active")
+    seen: list[str] = []
+
+    def track(event) -> None:
+        if event.data["entity_id"] == "select.house_mode" and event.data["new_state"]:
+            seen.append(event.data["new_state"].state)
+
+    hass.bus.async_listen("state_changed", track)
+    assert await hass.config_entries.async_reload(entry.entry_id)
+    await hass.async_block_till_done()
+    assert "shadow" not in seen
+    assert hass.states.get("select.house_mode").state == "active"
+    assert hass.states.get("sensor.house_status").state != "off"
