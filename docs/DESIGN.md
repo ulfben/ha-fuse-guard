@@ -108,7 +108,7 @@ All entities belong to one device per entry ("Fuse Guard – <name>").
 | Entity | Type | State / purpose |
 |---|---|---|
 | Mode | `select` | `off` / `shadow` / `active`. Shadow computes and logs everything but never writes. Default after setup: **shadow** |
-| Status | `sensor` (enum) | `off`, `startup`, `fail_safe`, `inactive`, `zero_request`, `paused`, `limiting`, `holding`, `recovering`, `full_rate`. The status names a phase that lasts many evaluations: `limiting` from a cut (or a start limited by headroom) through the wait for a fresh reading and the cooldown, `recovering` while giving power back including the waits between steps, `holding` below target for any other reason (load not following, no room, startup cooldown). Attributes: `reason` (as today's status text), `summary` (plain-language line for dashboards), `ceiling_w`, `requested_w`, `readback_w` |
+| Status | `sensor` (enum) | `off`, `startup`, `fail_safe`, `inactive`, `zero_request`, `paused`, `limiting`, `holding`, `recovering`, `full_rate`. The status names a phase that lasts many evaluations: `limiting` from a cut (or a start into an overload) through the wait for a fresh reading and the cooldown; a start with room goes straight to `recovering`, `recovering` while giving power back including the waits between steps, `holding` below target for any other reason (load not following, no room, startup cooldown). Attributes: `reason` (as today's status text), `summary` (plain-language line for dashboards), `ceiling_w`, `requested_w`, `readback_w` |
 | Ceiling | `sensor` W | Current safe limit (restored across restarts) |
 | Phase L1/L2/L3 current | `sensor` A | Highest fresh reading. Attributes: `source_entity`, `sample_timestamp`, `fresh_sources`, `spread` |
 | Highest phase current | `sensor` A | Max of the phases; this replaces `sensor.main_fuse_current_max` |
@@ -202,7 +202,12 @@ value differs from the readback by at least one step (or is 0 while the readback
 - **The startup hold** counts from integration setup, not from the automation's
   `last_changed`.
 - **The overload trigger is native:** any state change of a phase source runs an
-  evaluation, so no separate "over-limit" sensor is needed.
+  evaluation, so no separate "over-limit" sensor is needed. The evaluation runs
+  0.5 s after the first change of a burst (`BURST_WAIT_S`), so one meter's
+  phases arrive together: a P1 reader updates its entities one by one within
+  ~25 ms, and on 2026-11-07 a cut was sized from L2 while L3's higher reading
+  was 2 ms away. An inverter polled per register spreads its phases over
+  ~0.3 s typically and up to ~2.5 s; the wait covers nine bursts in ten.
 - **The guard trusts its own write while it settles.** For `settling_s` after a write, it
   uses the value it wrote instead of the readback. The guard evaluates on every
   phase sample, often within a second of a write, before the device reports the new value.

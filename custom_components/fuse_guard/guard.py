@@ -71,6 +71,13 @@ _LOGGER = logging.getLogger(__name__)
 
 STORAGE_VERSION = 1
 HISTORY_LENGTH = 50
+# A meter that reads all phases in one message (a P1 reader) still updates its
+# entities one at a time. Deciding on the first of them sized a cut from L2
+# while L3's higher reading was milliseconds away (2026-11-07 00:48). Waiting
+# this long after a change lets the burst arrive: P1 readers deliver all
+# phases within ~25 ms, an inverter polled per register within ~0.7 s in nine
+# bursts out of ten.
+BURST_WAIT_S = 0.5
 # Statuses in which the guard is actually holding the load back.
 _CONTROLLING = frozenset(
     {Status.LIMITING, Status.PAUSED, Status.HOLDING, Status.RECOVERING, Status.FAIL_SAFE}
@@ -115,6 +122,7 @@ class FuseGuard:
         self._unsubscribe: list[CALLBACK_TYPE] = []
         self._lock = asyncio.Lock()
         self._pending = False
+        self._burst: asyncio.Task[None] | None = None
         self._active_check: Callable[[Any], bool] | None = None
         self._condition_entities: list[str] = []
 
@@ -157,6 +165,9 @@ class FuseGuard:
         for unsubscribe in self._unsubscribe:
             unsubscribe()
         self._unsubscribe.clear()
+        if self._burst is not None:
+            self._burst.cancel()
+            self._burst = None
         await self._store.async_save(self._stored())
 
     def _watched_entities(self) -> list[str]:
@@ -222,7 +233,17 @@ class FuseGuard:
 
     @callback
     def _on_change(self, event: Event) -> None:
-        self.hass.async_create_task(self.async_evaluate(), eager_start=True)
+        # The first change of a burst starts the wait; the rest join it. The
+        # wait never restarts, so a decision is at most BURST_WAIT_S late.
+        if self._burst is None:
+            self._burst = self.hass.async_create_task(self._after_burst(), eager_start=True)
+
+    async def _after_burst(self) -> None:
+        try:
+            await asyncio.sleep(BURST_WAIT_S)
+        finally:
+            self._burst = None
+        await self.async_evaluate()
 
     @callback
     def _on_tick(self, now: Any) -> None:

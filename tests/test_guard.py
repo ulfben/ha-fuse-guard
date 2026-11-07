@@ -14,6 +14,7 @@ from pytest_homeassistant_custom_component.common import (
     async_mock_service,
 )
 
+from custom_components.fuse_guard import guard as guard_module
 from custom_components.fuse_guard.const import (
     CONF_ACTIVE_CONDITIONS,
     CONF_ACTUAL_SIGN,
@@ -86,6 +87,12 @@ def set_phases(
         hass.states.async_set(
             entity_id, str(value), {"unit_of_measurement": "A", "device_class": "current"}
         )
+
+
+@pytest.fixture(autouse=True)
+def no_burst_wait(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Decide right after each change; the burst wait has its own test."""
+    monkeypatch.setattr(guard_module, "BURST_WAIT_S", 0)
 
 
 @pytest.fixture
@@ -267,3 +274,21 @@ async def test_start_is_limited_by_headroom(hass: HomeAssistant, setup) -> None:
     # Later evaluations move on (cooldown); the write itself says why.
     assert events[-1].data["write_w"] == 900
     assert events[-1].data["message"].startswith("START: limited by headroom")
+
+
+async def test_a_burst_of_readings_is_decided_as_one(
+    hass: HomeAssistant, setup, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A P1 reader updates L2 and L3 milliseconds apart; size the cut on both.
+
+    On 2026-11-07 at 00:48 the guard cut on L2's 17.1 A before L3's 19.1 A
+    arrived, and the cut was half the size it should have been.
+    """
+    monkeypatch.setattr(guard_module, "BURST_WAIT_S", 0.05)
+    _, calls = setup
+    await set_mode(hass, "active")
+    set_phases(hass, l2=17.1)
+    set_phases(hass, l2=17.1, l3=19.1)
+    await hass.async_block_till_done()
+    # 19.1 - 15.4 = 3.7 A over: 310 + 3.7 x 690 = 2863 W off 6000 W
+    assert [c.data["value"] for c in calls] == [3100]

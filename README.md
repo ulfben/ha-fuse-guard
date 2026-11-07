@@ -177,7 +177,7 @@ and what each one does, are listed under [How it decides](#how-it-decides).
 | Entity | What it shows |
 |---|---|
 | Mode | Off, Shadow (decide and log, never write) or Active |
-| Status | What the guard is doing: full rate; limiting (from a cut, or a start limited by headroom, through its cooldown); recovering (giving power back, including the waits between steps); holding (below target for another reason, such as a load not following its setpoint); paused, load not active, fail safe… The `reason` attribute says what the last check did, and `summary` is a plain-language line for dashboards |
+| Status | What the guard is doing: full rate; limiting (from a cut through its cooldown, or a start into an overload); recovering (giving power back, including the waits between steps); holding (below target for another reason, such as a load not following its setpoint); paused, load not active, fail safe… The `reason` attribute says what the last check did, and `summary` is a plain-language line for dashboards |
 | Ceiling | The highest setpoint the guard currently allows (W) |
 | L1/L2/L3 current | The highest fresh reading per phase; attributes name the source meter and how far the meters disagree |
 | Highest phase current, Headroom | The worst phase, and how far below the limit it is |
@@ -205,7 +205,8 @@ show_log: true
 
 ## How it decides
 
-Every few seconds, and whenever a meter or a condition entity reports:
+Every few seconds, and half a second after a meter or a condition entity
+reports (so all phases of one meter reading arrive first):
 
 1. **When the load turns on** (your conditions start to hold), the setpoint
    is limited to 60 % of the measured headroom straight away, however much
