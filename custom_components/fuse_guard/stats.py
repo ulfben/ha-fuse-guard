@@ -32,9 +32,10 @@ class Summary:
     limited_starts: int  # starts limited by the headroom
     over_s: float  # seconds the highest phase was over the guard's limit
     peak_a: float | None  # highest phase current seen
-    # Both by each phase's most recent reading: the guard decides on the
+    # over_s is by each phase's most recent reading: the guard decides on the
     # highest fresh one, which would keep a spike "over" until a slow meter
     # reports again (474 s counted against ~220 s measured on 2026-11-08).
+    # The peak is the highest fresh reading: a real measurement either way.
     peak_ts: float | None
 
 
@@ -57,18 +58,22 @@ class RollingStats:
         limit_a: float,
         cut: bool = False,
         limited_start: bool = False,
+        peak_a: float | None = None,
     ) -> None:
         """Count one evaluation. The time since the last one counts as over the
-        limit if the highest phase was over it then."""
+        limit if the highest phase was over it then. `current_a` should be by
+        each phase's newest reading; `peak_a` (default: `current_a`) may be the
+        highest fresh one, since any real reading can be the peak."""
+        peak = current_a if peak_a is None else peak_a
         minute = self._minute(now)
         if self._last is not None:
             last_ts, last_a, last_limit = self._last
             gap = now - last_ts
             if 0 < gap <= _MAX_GAP_S and last_a > last_limit:
                 minute.over_s += gap
+        if peak is not None and peak > minute.peak_a:
+            minute.peak_a, minute.peak_ts = peak, now
         if current_a is not None:
-            if current_a > minute.peak_a:
-                minute.peak_a, minute.peak_ts = current_a, now
             self._last = (now, current_a, limit_a)
         else:
             self._last = None

@@ -73,3 +73,12 @@ def test_survives_a_restart() -> None:
 def test_bad_stored_rows_are_skipped() -> None:
     restored = RollingStats([[T0, 19.1, T0, 11, 1, 0], ["x"], None, [T0 + 60]])
     assert restored.summary(T0 + 120).cuts == 1
+
+
+def test_peak_can_come_from_another_reading_than_the_time_over() -> None:
+    stats = RollingStats()
+    stats.record(T0, 13.9, LIMIT, peak_a=19.1)  # a slow meter's spike is still fresh
+    stats.record(T0 + 5, 13.8, LIMIT, peak_a=19.1)
+    s = stats.summary(T0 + 5)
+    assert s.over_s == 0
+    assert s.peak_a == 19.1

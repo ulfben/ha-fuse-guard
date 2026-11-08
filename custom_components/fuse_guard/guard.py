@@ -420,7 +420,14 @@ class FuseGuard:
         cut = decision.state.last_cut_ts != self.state.last_cut_ts and (
             started or decision.reason == THROTTLE_REASON
         )
-        self.stats.record(now, self.newest_current_a, settings.threshold_a, cut, started)
+        self.stats.record(
+            now,
+            self.newest_current_a,
+            settings.threshold_a,
+            cut,
+            started,
+            peak_a=self.highest_current_a,
+        )
         # Save once a minute: a delayed save that is pushed back on every
         # evaluation would never run.
         minute = now - now % 60
