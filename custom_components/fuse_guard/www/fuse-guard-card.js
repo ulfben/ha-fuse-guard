@@ -6,6 +6,7 @@
  *   entity: sensor.house_status   # the guard's Status sensor
  *   name: Main fuse               # optional
  *   show_log: true                # optional: last decisions
+ *   show_meters: true             # optional: which meter each phase uses
  *
  * The card finds the guard's other entities (mode, phases, ceiling) through
  * the entity registry: same device, keyed by translation key.
@@ -29,6 +30,9 @@ const STATUS_COLOR = {
   recovering: "var(--info-color, var(--primary-color))",
   full_rate: "var(--success-color)",
 };
+
+// The load isn't drawing in these, so the allowed power is only a figure.
+const LOAD_IDLE = new Set(["off", "inactive", "zero_request"]);
 
 const escapeHtml = (value) =>
   String(value ?? "").replace(
@@ -106,7 +110,7 @@ class FuseGuardCard extends HTMLElement {
   }
 
   getCardSize() {
-    return this._config?.show_log ? 7 : 4;
+    return 4 + (this._config?.show_log ? 3 : 0) + (this._config?.show_meters ? 2 : 0);
   }
 
   getGridOptions() {
@@ -159,17 +163,49 @@ class FuseGuardCard extends HTMLElement {
       })
       .join("");
 
+    // What the guard lets the load use, against its target. Not what the load
+    // draws: greyed out while the load is off, or it would look like it runs.
     const ceiling = number(hass.states[ids.ceiling]);
     const target = Number(a.target_w);
+    const idle = LOAD_IDLE.has(status.state);
     const loadRow =
       ceiling !== null && target > 0
-        ? `<div class="phase load">
-             <span class="label">Load</span>
-             <div class="track"><div class="fill ${ceiling < target ? "near" : "ok"}"
+        ? `<div class="phase load${idle ? " idle" : ""}" title="${
+            idle ? "The load is off; this is what it may use when it starts" : "What the guard lets the load use"
+          }">
+             <span class="label">Allowed</span>
+             <div class="track"><div class="fill ${idle ? "idle" : ceiling < target ? "near" : "ok"}"
                style="width:${Math.min(100, (ceiling / target) * 100)}%"></div></div>
              <span class="value">${(Math.min(ceiling, target) / 1000).toFixed(1)} / ${(target / 1000).toFixed(1)} kW</span>
            </div>`
         : "";
+
+    // Which meter each phase uses, how many of its meters are fresh, and how far
+    // they disagree: the first thing to look at when a reading seems off.
+    const meterName = (entityId) => {
+      const entry = hass.entities?.[entityId];
+      const device = entry?.device_id ? hass.devices?.[entry.device_id] : undefined;
+      return (
+        device?.name_by_user || device?.name || hass.states[entityId]?.attributes?.friendly_name || entityId || "–"
+      );
+    };
+    const meters = this._config.show_meters
+      ? `<div class="meters">${["l1", "l2", "l3"]
+          .filter((key) => ids[`current_${key}`])
+          .map((key) => {
+            const attrs = hass.states[ids[`current_${key}`]]?.attributes || {};
+            const fresh = attrs.fresh_sources ?? "–";
+            const total = attrs.total_sources ?? "–";
+            const spread = attrs.spread != null ? `±${Number(attrs.spread).toFixed(2)} A` : "";
+            return `<span class="label">${key.toUpperCase()}</span>
+              <span class="meter" title="${escapeHtml(attrs.source_entity)}">${escapeHtml(
+                attrs.source_entity ? meterName(attrs.source_entity) : "–",
+              )}</span>
+              <span class="value${fresh !== total ? " stale" : ""}" title="Meters that reported recently">${fresh}/${total}</span>
+              <span class="value" title="Disagreement between the fresh meters">${spread}</span>`;
+          })
+          .join("")}</div>`
+      : "";
 
     const log =
       this._config.show_log && Array.isArray(a.recent) && a.recent.length
@@ -215,6 +251,7 @@ class FuseGuardCard extends HTMLElement {
         <div class="phases">${phases}${loadRow}</div>
         <div class="legend">Marker: guard limit ${threshold.toFixed(1)} A · bar end: ${fuse} A fuse</div>
         ${dayLine}
+        ${meters}
         ${log}
       </ha-card>${STYLE}`;
 
@@ -266,6 +303,12 @@ const STYLE = `<style>
   .fill.over { background: var(--error-color); }
   .marker { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--primary-text-color); opacity: 0.6; }
   .load { margin-top: 4px; }
+  .fill.idle { background: var(--disabled-text-color, rgba(127,127,127,0.5)); }
+  .load.idle .value { color: var(--secondary-text-color); }
+  .meters { display: grid; grid-template-columns: 3em 1fr auto auto; gap: 4px 12px; align-items: baseline;
+    margin: 12px 0 0; padding: 8px 0 0; border-top: 1px solid var(--divider-color); font-size: 0.85em; }
+  .meter { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .meters .value.stale { color: var(--warning-color); }
   .legend { margin-top: 8px; font-size: 0.8em; color: var(--secondary-text-color); }
   .log { list-style: none; margin: 12px 0 0; padding: 8px 0 0; border-top: 1px solid var(--divider-color);
     font-size: 0.85em; display: grid; gap: 4px; }
@@ -295,10 +338,16 @@ class FuseGuardCardEditor extends HTMLElement {
           selector: { entity: { filter: { integration: DOMAIN, domain: "sensor", device_class: "enum" } } },
         },
         { name: "name", selector: { text: {} } },
+        { name: "show_meters", selector: { boolean: {} } },
         { name: "show_log", selector: { boolean: {} } },
       ];
       this._form.computeLabel = (field) =>
-        ({ entity: "Fuse Guard status sensor", name: "Title", show_log: "Show recent decisions" })[field.name];
+        ({
+          entity: "Fuse Guard status sensor",
+          name: "Title",
+          show_meters: "Show meters per phase",
+          show_log: "Show recent decisions",
+        })[field.name];
       this._form.addEventListener("value-changed", (event) => {
         this.dispatchEvent(
           new CustomEvent("config-changed", { detail: { config: event.detail.value }, bubbles: true, composed: true }),

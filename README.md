@@ -194,14 +194,22 @@ the logbook says "would set" instead.
 ## Dashboard card
 
 Edit a dashboard → **Add card** → **Fuse Guard**. It shows each phase against
-the fuse (the marker is the guard's limit), the load against its target, the
-status line, a mode switch (it asks before going Active), a line on the last
-24 hours ("Last 24 h: 1 cut · 11 s over the limit · peak 19.2 A at 00:48") and,
-optionally, the last decisions.
+the fuse (the marker is the guard's limit), the power the guard allows the load
+against its target (greyed out while the load is off), the status line, a mode
+switch (it asks before going Active) and a line on the last 24 hours
+("Last 24 h: 1 cut · 11 s over the limit · peak 19.2 A at 00:48").
+
+Two optional sections:
+
+- **`show_meters`**: per phase, the meter whose reading is used, how many of
+  that phase's meters reported recently (for example 3/3), and how far they
+  disagree. The first thing to look at when a reading seems off.
+- **`show_log`**: the last decisions.
 
 ```yaml
 type: custom:fuse-guard-card
 entity: sensor.fuse_guard_status
+show_meters: true
 show_log: true
 ```
 

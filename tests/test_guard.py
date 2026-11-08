@@ -136,6 +136,7 @@ async def test_entities_after_setup(hass: HomeAssistant, setup) -> None:
     assert hass.states.get("number.house_target_power").state == "6000.0"
     l3 = hass.states.get("sensor.house_l3_current")
     assert l3.attributes["fresh_sources"] == 2
+    assert l3.attributes["total_sources"] == 2
     assert l3.attributes["source_entity"] == "sensor.meter_l3"
 
 

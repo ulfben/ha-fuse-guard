@@ -16,7 +16,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import FuseGuardConfigEntry
-from .const import CONF_FUSE_A, CONF_MARGIN_A
+from .const import CONF_FUSE_A, CONF_MARGIN_A, CONF_PHASE_SENSORS
 from .controller import Status
 from .entity import FuseGuardEntity
 from .guard import FuseGuard
@@ -119,6 +119,7 @@ class PhaseCurrentSensor(_CurrentSensor):
             "source_entity": sample.source,
             "sample_timestamp": sample.timestamp,
             "fresh_sources": sample.fresh_sources,
+            "total_sources": len(self.guard.options[CONF_PHASE_SENSORS][self.phase]),
             "spread": sample.spread,
         }
 
