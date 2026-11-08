@@ -33,6 +33,17 @@ class PhaseSample:
     # high reading from before its last cut while a newer one is available.
     readings: tuple[tuple[float, float], ...] = ()
 
+    @property
+    def newest(self) -> float | None:
+        """The most recent reading (the highest, if several share a time).
+
+        The guard decides on the highest fresh reading, which stays high until a
+        slow meter reports again. For "how long was it over the limit?" that
+        would count up to the freshness window after every spike."""
+        if not self.readings:
+            return self.current
+        return max(self.readings, key=lambda r: (r[1], r[0]))[0]
+
     def max_since(self, ts: float) -> float | None:
         """Highest reading reported at or after ts, or None if there is none."""
         readings = self.readings or (

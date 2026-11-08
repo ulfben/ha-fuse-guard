@@ -42,3 +42,19 @@ def test_no_fresh_reading_gives_empty_sample() -> None:
     sample = select_phase([Reading("sensor.stale", "10", NOW - 120)], NOW, 60)
     assert sample.current is None
     assert sample.fresh_sources == 0
+
+
+def test_newest_is_the_most_recent_reading_not_the_highest() -> None:
+    # A slow meter's spike stays fresh for a while; a faster meter has moved on.
+    sample = select_phase(
+        [Reading("sensor.p1_slow", "19.1", NOW - 30), Reading("sensor.fast", "13.9", NOW - 2)],
+        NOW,
+        60,
+    )
+    assert sample.current == 19.1  # the guard still decides on the highest
+    assert sample.newest == 13.9
+
+
+def test_newest_with_one_reading() -> None:
+    sample = select_phase([Reading("sensor.only", "12.0", NOW - 5)], NOW, 60)
+    assert sample.newest == 12.0

@@ -326,3 +326,25 @@ async def test_restart_reports_the_saved_mode_from_the_start(hass: HomeAssistant
     assert "shadow" not in seen
     assert hass.states.get("select.house_mode").state == "active"
     assert hass.states.get("sensor.house_status").state != "off"
+
+
+async def test_over_limit_time_follows_the_newest_reading(
+    hass: HomeAssistant, setup, freezer: FrozenDateTimeFactory
+) -> None:
+    """A slow meter's spike stays "highest fresh" for up to a minute; once a
+    faster meter reads lower, the time over the limit stops counting."""
+    entry, _ = setup
+    set_phases(hass, l3=4, other_l3=17)  # the slow meter spikes
+    await hass.async_block_till_done()
+    freezer.tick(timedelta(seconds=5))
+    # Only the fast meter reports again; the slow meter's 17 A is still fresh.
+    hass.states.async_set(
+        "sensor.meter_l3", "5", {"unit_of_measurement": "A", "device_class": "current"}
+    )
+    await hass.async_block_till_done()
+    for _ in range(4):
+        freezer.tick(timedelta(seconds=5))
+        async_fire_time_changed(hass)
+        await hass.async_block_till_done()
+    over = float(hass.states.get(_entity_id(hass, entry, "over_limit_24h")).state)
+    assert over <= 6  # only until the fast meter's lower reading, not 25 s

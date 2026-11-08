@@ -32,6 +32,9 @@ class Summary:
     limited_starts: int  # starts limited by the headroom
     over_s: float  # seconds the highest phase was over the guard's limit
     peak_a: float | None  # highest phase current seen
+    # Both by each phase's most recent reading: the guard decides on the
+    # highest fresh one, which would keep a spike "over" until a slow meter
+    # reports again (474 s counted against ~220 s measured on 2026-11-08).
     peak_ts: float | None
 
 

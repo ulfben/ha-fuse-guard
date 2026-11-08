@@ -420,7 +420,7 @@ class FuseGuard:
         cut = decision.state.last_cut_ts != self.state.last_cut_ts and (
             started or decision.reason == THROTTLE_REASON
         )
-        self.stats.record(now, self.highest_current_a, settings.threshold_a, cut, started)
+        self.stats.record(now, self.newest_current_a, settings.threshold_a, cut, started)
         # Save once a minute: a delayed save that is pushed back on every
         # evaluation would never run.
         minute = now - now % 60
@@ -505,6 +505,12 @@ class FuseGuard:
     @property
     def highest_current_a(self) -> float | None:
         values = [p.current for p in self.phases.values() if p.current is not None]
+        return max(values) if len(values) == len(self.phases) and values else None
+
+    @property
+    def newest_current_a(self) -> float | None:
+        """Highest phase by each phase's most recent reading (for statistics)."""
+        values = [p.newest for p in self.phases.values() if p.newest is not None]
         return max(values) if len(values) == len(self.phases) and values else None
 
     @property
