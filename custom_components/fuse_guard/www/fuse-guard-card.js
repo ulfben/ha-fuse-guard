@@ -141,6 +141,12 @@ class FuseGuardCard extends HTMLElement {
     const title = this._config.name || hass.devices?.[deviceId]?.name || "Fuse Guard";
     const color = STATUS_COLOR[status.state] || "var(--primary-text-color)";
 
+    // With no margin the limit is the bar's end, where a marker can't be seen.
+    const hasMarker = threshold < fuse;
+    const legend = hasMarker
+      ? `Marker: guard limit ${threshold.toFixed(1)} A · bar end: ${fuse} A fuse`
+      : `Bar end: guard limit = ${fuse} A fuse (no margin)`;
+
     const phases = ["l1", "l2", "l3"]
       .filter((key) => ids[`current_${key}`])
       .map((key) => {
@@ -156,7 +162,7 @@ class FuseGuardCard extends HTMLElement {
             <span class="label">${key.toUpperCase()}</span>
             <div class="track">
               <div class="fill ${level}" style="width:${width}%"></div>
-              <div class="marker" style="left:${(threshold / fuse) * 100}%"></div>
+              ${hasMarker ? `<div class="marker" style="left:${(threshold / fuse) * 100}%"></div>` : ""}
             </div>
             <span class="value">${current === null ? "–" : `${current.toFixed(1)} A`}</span>
           </div>`;
@@ -249,7 +255,7 @@ class FuseGuardCard extends HTMLElement {
           <span>${escapeHtml(a.summary || status.state)}</span>
         </button>
         <div class="phases">${phases}${loadRow}</div>
-        <div class="legend">Marker: guard limit ${threshold.toFixed(1)} A · bar end: ${fuse} A fuse</div>
+        <div class="legend">${legend}</div>
         ${dayLine}
         ${meters}
         ${log}
