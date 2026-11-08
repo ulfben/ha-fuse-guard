@@ -194,10 +194,9 @@ the logbook says "would set" instead.
 ## Dashboard card
 
 Edit a dashboard → **Add card** → **Fuse Guard**. It shows each phase against
-the fuse (a marker shows the guard's limit if you set a margin), the power the
-guard allows the load against its target (greyed out while the load is off),
-the status line, a mode
-switch (it asks before going Active) and a line on the last 24 hours
+the fuse, the power the guard allows the load against its target (greyed out
+while the load is off), the status line, a mode switch (it asks before going
+Active) and a line on the last 24 hours
 ("Last 24 h: 1 cut · 11 s over the limit · peak 19.2 A at 00:48").
 
 Two optional sections:

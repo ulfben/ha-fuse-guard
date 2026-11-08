@@ -141,11 +141,9 @@ class FuseGuardCard extends HTMLElement {
     const title = this._config.name || hass.devices?.[deviceId]?.name || "Fuse Guard";
     const color = STATUS_COLOR[status.state] || "var(--primary-text-color)";
 
-    // With no margin the limit is the bar's end, where a marker can't be seen.
+    // Each bar ends at the fuse rating, shown beside the value. A marker shows
+    // the guard's limit only when a margin puts it below the fuse.
     const hasMarker = threshold < fuse;
-    const legend = hasMarker
-      ? `Marker: guard limit ${threshold.toFixed(1)} A · bar end: ${fuse} A fuse`
-      : `Bar end: guard limit = ${fuse} A fuse (no margin)`;
 
     const phases = ["l1", "l2", "l3"]
       .filter((key) => ids[`current_${key}`])
@@ -164,7 +162,7 @@ class FuseGuardCard extends HTMLElement {
               <div class="fill ${level}" style="width:${width}%"></div>
               ${hasMarker ? `<div class="marker" style="left:${(threshold / fuse) * 100}%"></div>` : ""}
             </div>
-            <span class="value">${current === null ? "–" : `${current.toFixed(1)} A`}</span>
+            <span class="value">${current === null ? "–" : current.toFixed(1)}<span class="of"> / ${fuse} A</span></span>
           </div>`;
       })
       .join("");
@@ -182,7 +180,7 @@ class FuseGuardCard extends HTMLElement {
              <span class="label">Allowed</span>
              <div class="track"><div class="fill ${idle ? "idle" : ceiling < target ? "near" : "ok"}"
                style="width:${Math.min(100, (ceiling / target) * 100)}%"></div></div>
-             <span class="value">${(Math.min(ceiling, target) / 1000).toFixed(1)} / ${(target / 1000).toFixed(1)} kW</span>
+             <span class="value">${(Math.min(ceiling, target) / 1000).toFixed(1)}<span class="of"> / ${(target / 1000).toFixed(1)} kW</span></span>
            </div>`
         : "";
 
@@ -255,7 +253,7 @@ class FuseGuardCard extends HTMLElement {
           <span>${escapeHtml(a.summary || status.state)}</span>
         </button>
         <div class="phases">${phases}${loadRow}</div>
-        <div class="legend">${legend}</div>
+        ${hasMarker ? `<div class="legend">Marker: guard limit ${threshold.toFixed(1)} A</div>` : ""}
         ${dayLine}
         ${meters}
         ${log}
@@ -299,7 +297,7 @@ const STYLE = `<style>
     background: none; font: inherit; color: var(--primary-text-color); cursor: pointer; text-align: left; }
   .summary ha-icon { color: var(--status-color); }
   .phases { display: grid; gap: 8px; }
-  .phase { display: grid; grid-template-columns: 3em 1fr 6.5em; align-items: center; gap: 8px; }
+  .phase { display: grid; grid-template-columns: 3em 1fr 7.5em; align-items: center; gap: 8px; }
   .label { color: var(--secondary-text-color); font-size: 0.9em; }
   .value { text-align: right; font-variant-numeric: tabular-nums; }
   .track { position: relative; height: 10px; border-radius: 5px; background: var(--secondary-background-color, rgba(127,127,127,0.15)); overflow: hidden; }
@@ -315,6 +313,7 @@ const STYLE = `<style>
     margin: 12px 0 0; padding: 8px 0 0; border-top: 1px solid var(--divider-color); font-size: 0.85em; }
   .meter { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .meters .value.stale { color: var(--warning-color); }
+  .value .of { font-size: 0.8em; color: var(--secondary-text-color); }
   .legend { margin-top: 8px; font-size: 0.8em; color: var(--secondary-text-color); }
   .log { list-style: none; margin: 12px 0 0; padding: 8px 0 0; border-top: 1px solid var(--divider-color);
     font-size: 0.85em; display: grid; gap: 4px; }
