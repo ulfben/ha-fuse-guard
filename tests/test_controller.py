@@ -411,7 +411,60 @@ def test_no_room_between_steps_is_holding() -> None:
         state(ceiling_w=3000, last_cut_ts=NOW - 120, last_recovery_ts=NOW - 30),
     )
     assert d.status is Status.HOLDING
-    assert d.reason == "HOLD"
+    assert d.reason == "HOLD: at the limit"
+
+
+# A recovery step never takes more than the headroom (2026-11-08: 100 W steps
+# tipped the phases to 16.0-16.2 A, inside the tolerance, then a cut, again).
+
+
+def test_recovery_holds_when_a_step_would_cross_the_limit() -> None:
+    # 0.1 A headroom = 69 W: not one 100 W step.
+    d = run(
+        inputs(phases=phases(l3=15.3), readback_w=3000, actual_w=3000),
+        state(ceiling_w=3000, last_cut_ts=NOW - 120),
+    )
+    assert d.status is Status.HOLDING
+    assert d.reason == "HOLD: at the limit"
+    assert d.ceiling_w == 3000
+    assert d.write_w is None
+
+
+def test_recovery_step_is_capped_at_the_headroom() -> None:
+    # 0.2 A headroom = 138 W: 60 % is 83 W, the minimum step 100 W still fits.
+    d = run(
+        inputs(phases=phases(l3=15.2), readback_w=3000, actual_w=3000),
+        state(ceiling_w=3000, last_cut_ts=NOW - 120),
+    )
+    assert d.status is Status.RECOVERING
+    assert d.ceiling_w == 3100
+
+
+def test_recovery_sawtooth_at_the_limit_settles_below_it() -> None:
+    # Each step raises the phase by its share of the load; the guard ends
+    # below the limit and never crosses it.
+    l3, ceiling, ts = 13.0, 3000.0, NOW
+    for _ in range(20):
+        ts += 61
+        d = run(
+            inputs(
+                now=ts,
+                phases=phases(l3=l3),
+                readback_w=ceiling,
+                actual_w=ceiling,
+                command_changed_ts=ts - 60,
+            ),
+            state(
+                ceiling_w=ceiling,
+                last_cut_ts=NOW - 120,
+                last_recovery_ts=ts - 61,
+            ),
+        )
+        l3 += (d.ceiling_w - ceiling) / 690
+        ceiling = d.ceiling_w
+        assert l3 <= 15.4
+    assert 15.4 - 100 / 690 < l3 <= 15.4
+    assert d.status is Status.HOLDING
 
 
 def test_cooldown_at_full_rate_is_full_rate() -> None:

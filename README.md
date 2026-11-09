@@ -233,7 +233,9 @@ reports (so all phases of one meter reading arrive first):
 4. **After a cut, or when the guard starts up,** it waits 60 s before
    giving any power back.
 5. **Then it recovers in steps** of 60 % of the measured headroom, at most
-   once a minute, and only while the load is following its setpoint.
+   once a minute, and only while the load is following its setpoint. A step
+   never takes more than the headroom, so the load settles just under the
+   limit rather than just over it.
 6. **Missing or stale data** while the load is active pauses the load
    (or holds the setpoint, if you choose that).
 

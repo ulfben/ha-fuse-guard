@@ -191,6 +191,11 @@ def decide(settings: Settings, inputs: Inputs, state: GuardState) -> Decision:
     else:
         tracking = True
     command_settled = now - i.command_changed_ts >= s.settling_s
+    # A recovery step never takes more than the headroom: near the limit a whole
+    # step would tip the phases over it, where the guard would sit inside its
+    # min_over tolerance and then cut again (a sawtooth just above the limit).
+    room_w = _floor_step(max(0.0, headroom_a) * s.watts_per_amp, s.step_w)
+    has_room = room_w >= s.step_w
     recovery_due = (
         state.last_recovery_ts is None or now - state.last_recovery_ts >= s.recovery_interval_s
     )
@@ -198,12 +203,12 @@ def decide(settings: Settings, inputs: Inputs, state: GuardState) -> Decision:
         inputs_valid
         and active
         and not in_cooldown
-        and headroom_a > 0
+        and has_room
         and (command_settled or baseline_w == 0)
         and tracking
         and (recovery_due or baseline_w == 0)
     )
-    recovery_jump_w = max(s.step_w, int(headroom_a * s.watts_per_amp * s.recovery_gain))
+    recovery_jump_w = min(max(s.step_w, headroom_a * s.watts_per_amp * s.recovery_gain), room_w)
     drop_w = s.base_drop_w + cut_over_a * s.watts_per_amp
     cutting = over_is_real and down_due and over_sample_fresh
 
@@ -258,10 +263,11 @@ def decide(settings: Settings, inputs: Inputs, state: GuardState) -> Decision:
         status, reason = Status.HOLDING, "HOLD: load not following command"
     elif recovery_allowed:
         status, reason = Status.RECOVERING, "RECOVER"
-    else:
+    elif has_room:
         # Between recovery steps, while there is room to give back.
-        status = Status.RECOVERING if headroom_a > 0 else Status.HOLDING
-        reason = "HOLD"
+        status, reason = Status.RECOVERING, "HOLD"
+    else:
+        status, reason = Status.HOLDING, "HOLD: at the limit"
     if ceiling_w == 0 and status in (Status.LIMITING, Status.HOLDING) and active:
         status = Status.PAUSED
 

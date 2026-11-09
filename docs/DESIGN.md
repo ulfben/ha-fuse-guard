@@ -179,10 +179,16 @@ Diagnostics download (`diagnostics.py`) dumps:
 7. **Full rate:** baseline ≥ target.
 8. **Hold, not following:** the actual power is below baseline −
    max(300 W, 15 %), when baseline ≥ 1000 W.
-9. **Recover:** headroom > 0, settled (or baseline 0), recovery interval
+9. **Recover:** room ≥ step, settled (or baseline 0), recovery interval
    passed (or baseline 0) → ceiling = min(target, baseline +
-   max(step, headroom_A × W_per_A × gain)).
-10. Otherwise **hold**.
+   min(max(step, headroom_A × W_per_A × gain), room)), where room =
+   headroom_A × W_per_A rounded down to whole steps. A step never takes more
+   than the headroom: with whole steps only, the last one near the limit
+   tipped the phases to 0–0.2 A over it, inside the min-over tolerance, until
+   the house got busier and a cut followed (a sawtooth just above the limit,
+   seen on 2026-11-08 with no margin).
+10. Otherwise **hold**: `recovering` between steps while there is room,
+    `holding` ("HOLD: at the limit") when there is none.
 
 Definitions:
 - baseline = min(ceiling, readback, target);
