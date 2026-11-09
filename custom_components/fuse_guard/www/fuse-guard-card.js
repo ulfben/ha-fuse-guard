@@ -297,7 +297,7 @@ const STYLE = `<style>
     background: none; font: inherit; color: var(--primary-text-color); cursor: pointer; text-align: left; }
   .summary ha-icon { color: var(--status-color); }
   .phases { display: grid; gap: 8px; }
-  .phase { display: grid; grid-template-columns: 3em 1fr 7.5em; align-items: center; gap: 8px; }
+  .phase { display: grid; grid-template-columns: 4.5em 1fr 7.5em; align-items: center; gap: 8px; }
   .label { color: var(--secondary-text-color); font-size: 0.9em; }
   .value { text-align: right; font-variant-numeric: tabular-nums; }
   .track { position: relative; height: 10px; border-radius: 5px; background: var(--secondary-background-color, rgba(127,127,127,0.15)); overflow: hidden; }
@@ -309,7 +309,7 @@ const STYLE = `<style>
   .load { margin-top: 4px; }
   .fill.idle { background: var(--disabled-text-color, rgba(127,127,127,0.5)); }
   .load.idle .value { color: var(--secondary-text-color); }
-  .meters { display: grid; grid-template-columns: 3em 1fr auto auto; gap: 4px 12px; align-items: baseline;
+  .meters { display: grid; grid-template-columns: 4.5em 1fr auto auto; gap: 4px 12px; align-items: baseline;
     margin: 12px 0 0; padding: 8px 0 0; border-top: 1px solid var(--divider-color); font-size: 0.85em; }
   .meter { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .meters .value.stale { color: var(--warning-color); }
