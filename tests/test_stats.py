@@ -82,3 +82,13 @@ def test_peak_can_come_from_another_reading_than_the_time_over() -> None:
     s = stats.summary(T0 + 5)
     assert s.over_s == 0
     assert s.peak_a == 19.1
+
+
+def test_a_reading_at_the_limit_counts_as_over() -> None:
+    """The guard passes its threshold plus the minimum overload: a reading
+    right at that value is an overload, as the guard sees it."""
+    stats = RollingStats()
+    stats.record(T0, 16.19, 16.2)
+    stats.record(T0 + 5, 16.2, 16.2)  # under: not counted
+    stats.record(T0 + 9, 15.9, 16.2)  # at the limit: these 4 s count
+    assert stats.summary(T0 + 9).over_s == 4

@@ -420,10 +420,12 @@ class FuseGuard:
         cut = decision.state.last_cut_ts != self.state.last_cut_ts and (
             started or decision.reason == THROTTLE_REASON
         )
+        # Counted from where the guard acts: within the minimum overload it
+        # holds rather than cuts, so that isn't an overload worth reporting.
         self.stats.record(
             now,
             self.newest_current_a,
-            settings.threshold_a,
+            round(settings.threshold_a + settings.min_over_a, 2),
             cut,
             started,
             peak_a=self.highest_current_a,

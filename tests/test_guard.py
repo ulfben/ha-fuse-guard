@@ -349,3 +349,26 @@ async def test_over_limit_time_follows_the_newest_reading(
         await hass.async_block_till_done()
     over = float(hass.states.get(_entity_id(hass, entry, "over_limit_24h")).state)
     assert over <= 6  # only until the fast meter's lower reading, not 25 s
+
+
+async def test_over_limit_time_ignores_the_minimum_overload(
+    hass: HomeAssistant, setup, freezer: FrozenDateTimeFactory
+) -> None:
+    """Within the minimum overload (0.2 A over the 15.4 A threshold) the guard
+    holds rather than cuts, so that time isn't counted as over the limit."""
+    entry, _ = setup
+    set_phases(hass, l3=15.5)
+    await hass.async_block_till_done()
+    for _ in range(4):
+        freezer.tick(timedelta(seconds=5))
+        async_fire_time_changed(hass)
+        await hass.async_block_till_done()
+    over_id = _entity_id(hass, entry, "over_limit_24h")
+    assert float(hass.states.get(over_id).state) == 0
+    set_phases(hass, l3=15.7)
+    await hass.async_block_till_done()
+    for _ in range(4):
+        freezer.tick(timedelta(seconds=5))
+        async_fire_time_changed(hass)
+        await hass.async_block_till_done()
+    assert float(hass.states.get(over_id).state) > 0

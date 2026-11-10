@@ -183,7 +183,7 @@ and what each one does, are listed under [How it decides](#how-it-decides).
 | Highest phase current, Headroom | The worst phase, and how far below the limit it is |
 | Limiting | On while the guard holds the load below its target |
 | Target power | Only when the target is a fixed value |
-| Cuts, Limited starts, Time over limit, Peak phase current (24 h) | What happened over the last 24 hours, rolling, so a night of charging isn't split at midnight. Cuts include starts into an overload; the peak has the time it happened as an attribute. Kept across restarts |
+| Cuts, Limited starts, Time over limit, Peak phase current (24 h) | What happened over the last 24 hours, rolling, so a night of charging isn't split at midnight. Time over limit counts from the limit plus the minimum overload, where the guard starts to cut. Cuts include starts into an overload; the peak has the time it happened as an attribute. Kept across restarts |
 
 Every write shows in the logbook ("set number.… to 5000 W: THROTTLE; …") and
 fires a `fuse_guard_action` event you can use in automations. In Shadow mode

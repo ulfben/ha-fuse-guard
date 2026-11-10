@@ -30,7 +30,7 @@ class _Minute:
 class Summary:
     cuts: int  # cuts, including starts into an overload
     limited_starts: int  # starts limited by the headroom
-    over_s: float  # seconds the highest phase was over the guard's limit
+    over_s: float  # seconds the highest phase was overloaded (limit + minimum overload)
     peak_a: float | None  # highest phase current seen
     # over_s is by each phase's most recent reading: the guard decides on the
     # highest fresh one, which would keep a spike "over" until a slow meter
@@ -61,7 +61,9 @@ class RollingStats:
         peak_a: float | None = None,
     ) -> None:
         """Count one evaluation. The time since the last one counts as over the
-        limit if the highest phase was over it then. `current_a` should be by
+        limit if the highest phase was at or over `limit_a` then: the guard
+        passes its threshold plus the minimum overload, where it starts to cut,
+        so a phase resting within the tolerance isn't counted. `current_a` should be by
         each phase's newest reading; `peak_a` (default: `current_a`) may be the
         highest fresh one, since any real reading can be the peak."""
         peak = current_a if peak_a is None else peak_a
@@ -69,7 +71,7 @@ class RollingStats:
         if self._last is not None:
             last_ts, last_a, last_limit = self._last
             gap = now - last_ts
-            if 0 < gap <= _MAX_GAP_S and last_a > last_limit:
+            if 0 < gap <= _MAX_GAP_S and last_a >= last_limit:
                 minute.over_s += gap
         if peak is not None and peak > minute.peak_a:
             minute.peak_a, minute.peak_ts = peak, now
