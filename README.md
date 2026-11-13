@@ -13,11 +13,11 @@ heat pump and the battery all land on the same phase and the main fuse trips.
 Fuse Guard watches each phase and trims the load just enough to stay under
 the limit, then gives the power back once there is room.
 
-<img alt="The Fuse Guard card during a live intervention: L3 just over the limit, the battery cut from 8.0 to 7.5 kW, and the log showing the cut, the wait for a fresh reading and the cooldown" src="https://raw.githubusercontent.com/ulfben/ha-fuse-guard/main/docs/images/card-limiting.png" width="360">
+<img alt="The Fuse Guard card: L3 at 16.1 of 16 A in red, the battery allowed 7.5 of 8.0 kW, and a log of the cut and the holds after it" src="https://raw.githubusercontent.com/ulfben/ha-fuse-guard/main/docs/images/card-limiting.png" width="360">
 
-*The card during a real night of car and battery charging: L3 is at the
-limit, so the guard holds the battery at 4.9 of its 6.0 kW and gives power
-back about once a minute as room returns.*
+*The card during a real cut: L3 went just over the limit, so the guard
+trimmed the battery from 8.0 to 7.5 kW, waited for a reading taken after the
+cut, then held through the cooldown before giving power back.*
 
 - **Uses every meter you have.** Each phase reads as the highest fresh value
   among its meters, so a slow or failed meter never hides an overload.
